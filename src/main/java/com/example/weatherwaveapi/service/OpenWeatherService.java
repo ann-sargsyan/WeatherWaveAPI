@@ -137,5 +137,4 @@ public class OpenWeatherService {
             throw new InvalidZipCodeException(INVALID_ZIPCODE_EXCEPTION_MESSAGE);
         }
     }
-
 }
