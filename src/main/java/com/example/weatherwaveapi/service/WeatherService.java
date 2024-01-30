@@ -1,5 +1,6 @@
 package com.example.weatherwaveapi.service;
 
+import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.model.request.WeatherRequest;
 import com.example.weatherwaveapi.model.response.WeatherApiResponse;
 import com.example.weatherwaveapi.model.response.WeatherResponse;
@@ -27,13 +28,10 @@ import static org.springframework.http.HttpMethod.GET;
 @Slf4j
 public class WeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
-
-    @Value("${openWeatherMap.api.key}")
-    private String apiKey;
-
-    @Value("${openWeatherMap.api.url}")
-    private String apiUrl;
-    public RestTemplate restTemplate = new RestTemplate();
+    private static final String ERROR_MESSAGE = "Failed to retrieve weather data for city ";
+    private static final String STRING_MESSAGE_FORMAT = "Search string: %s and error: %s";
+    public final RestTemplate restTemplate;
+    private final GeneralSettings generalSettings;
 
     public WeatherOpenApiContainer getWeatherBySelectedCity(String city) {
         String url = getUrlForSelectedCity(city);
@@ -49,7 +47,9 @@ public class WeatherService {
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(EXCEPTION_MESSAGE, e.getMessage());
-            throw new RuntimeException(e);
+            return WeatherOpenApiContainer.builder()
+                    .errorMessage(String.format(STRING_MESSAGE_FORMAT, city, ERROR_MESSAGE))
+                    .build();
         }
     }
 
@@ -67,16 +67,15 @@ public class WeatherService {
     }
 
     private String getUrlForSelectedCity(String city) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(generalSettings.getOpenWeatherApi().weatherUrl())
                 .queryParam("q", city)
-                .queryParam("appid", apiKey);
+                .queryParam("appid", generalSettings.getOpenWeatherApi().key());
 
         return builder.toUriString();
     }
 
     private WeatherApiResponse convertContainer(WeatherOpenApiContainer container) {
         return WeatherApiResponse.builder()
-                .success(true)
                 .temperature(container.weatherMetrics().temp())
                 .city(container.name())
                 .country(container.sunActivityInfo().country())
@@ -84,4 +83,5 @@ public class WeatherService {
                 .build();
 
     }
+
 }
