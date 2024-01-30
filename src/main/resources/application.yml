@@ -6,6 +6,6 @@ openWeatherMap:
            url: https://api.openweathermap.org/data/2.5/weather
 
 restTemplate:
-properties:
-connectionTimeout: 3000
-readTimeout: 3000
+  properties:
+      connectionTimeout: 3000
+      readTimeout: 3000

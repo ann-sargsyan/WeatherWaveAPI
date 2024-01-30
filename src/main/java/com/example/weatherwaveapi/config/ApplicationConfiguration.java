@@ -10,9 +10,9 @@ import java.time.Duration;
 
 @Configuration
 public class ApplicationConfiguration {
-    @Value("${connectionTimeout}")
+    @Value("${restTemplate.properties.connectionTimeout}")
     private int connectionTimeout;
-    @Value("${readTimeout}")
+    @Value("${restTemplate.properties.readTimeout}")
     private int readTimeout;
 
     @Bean
