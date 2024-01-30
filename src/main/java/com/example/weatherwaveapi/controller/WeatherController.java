@@ -16,6 +16,7 @@ import java.util.List;
 @RequestMapping("/weather")
 @Slf4j
 public class WeatherController {
+    private static final String REQUEST_MESSAGE = "Request contain serviceApiEnumValue: {}";
 
     private final WeatherService weatherService;
 
@@ -33,7 +34,7 @@ public class WeatherController {
         WeatherRequest weatherRequest = WeatherRequest.builder()
                 .cities(cities)
                 .build();
-        log.info("Request: {}", weatherRequest);
+        log.info(REQUEST_MESSAGE, weatherRequest);
         WeatherResponse response = weatherService.getWeather(weatherRequest);
         return ResponseEntity.ok(response);
     }

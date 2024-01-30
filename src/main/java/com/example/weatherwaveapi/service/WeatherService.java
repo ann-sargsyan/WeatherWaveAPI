@@ -26,11 +26,12 @@ import static org.springframework.http.HttpMethod.GET;
 @Service
 @Slf4j
 public class WeatherService {
+    private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
 
-    @Value("${openweathermap.api.key}")
+    @Value("${openWeatherMap.api.key}")
     private String apiKey;
 
-    @Value("${openweathermap.api.url}")
+    @Value("${openWeatherMap.api.url}")
     private String apiUrl;
     public RestTemplate restTemplate = new RestTemplate();
 
@@ -47,7 +48,7 @@ public class WeatherService {
             return responseEntity.getBody();
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            log.error("Exception: {}", e.getMessage());
+            log.error(EXCEPTION_MESSAGE, e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -77,7 +78,7 @@ public class WeatherService {
         return WeatherApiResponse.builder()
                 .success(true)
                 .temperature(container.weatherMetrics().temp())
-                .city(container.name())
+                .city(container.cityName())
                 .country(container.sunActivityInfo().country())
                 .weatherDescription(container.weather().get(0).description())
                 .build();

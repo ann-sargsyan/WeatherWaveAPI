@@ -19,11 +19,11 @@ public record WeatherOpenApiContainer(
         Wind wind,
         Rain rain,
         Clouds clouds,
-        long dt,
+        @JsonProperty("dt") long dataTime,
         @JsonProperty("sys") SunActivityInfo sunActivityInfo,
         int timezone,
-        int id,
-        String name,
-        int cod
+        @JsonProperty("id") int cityId,
+        @JsonProperty("name") String cityName,
+        @JsonProperty("cod") int internalParameter
 ) {
 }
