@@ -80,5 +80,6 @@ public class WeatherService {
                 .country(container.sunActivityInfo().country())
                 .weatherDescription(container.weather().get(0).description())
                 .build();
+
     }
 }
