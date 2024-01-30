@@ -28,10 +28,10 @@ import static org.springframework.http.HttpMethod.GET;
 public class WeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
 
-    @Value("${openweathermap.api.key}")
+    @Value("${openWeatherMap.api.key}")
     private String apiKey;
 
-    @Value("${openweathermap.api.url}")
+    @Value("${openWeatherMap.api.url}")
     private String apiUrl;
     public RestTemplate restTemplate = new RestTemplate();
 
