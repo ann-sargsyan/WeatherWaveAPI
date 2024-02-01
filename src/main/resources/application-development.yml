@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: development
+
+application:
+  settings:
+    serverPort: 8088
+    openWeatherMap:
+      api:
+        key: 675bf40b4d52b5fb5e47199ec8315931
+        weatherUrl: https://api.openweathermap.org/data/2.5/weather
+        forecastUrl: https://api.openweathermap.org/data/2.5/forecast
+    yandexMap:
+      api:
+        key: 675bf40b4d52b5fb5e47199ec8315931
+        url: https://api.yandex.com
+    restTemplateProperties:
+        connectionTimeout: 3000
+        readTimeout: 3000
