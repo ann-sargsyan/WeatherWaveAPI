@@ -14,6 +14,8 @@ import java.time.Duration;
 public class ApplicationConfiguration {
     private final GeneralSettings generalSettings;
 
+
+
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder
