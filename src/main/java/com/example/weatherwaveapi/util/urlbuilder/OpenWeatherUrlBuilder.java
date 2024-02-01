@@ -2,21 +2,20 @@ package com.example.weatherwaveapi.util.urlbuilder;
 
 import com.example.weatherwaveapi.config.GeneralSettings;
 import jakarta.ws.rs.core.UriBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OpenWeatherUrlBuilder {
-    private static final String API_KEY = "api.key";
-    private static final String WEATHER_URL = "api.weatherUrl";
-    private static final String FORECAST_URL = "api.forecastUrl";
     private final String apiKey;
     private final String weatherApiUrl;
     private final String forecastApiUrl;
 
+    @Autowired
     public OpenWeatherUrlBuilder(GeneralSettings generalSettings) {
-        this.apiKey = generalSettings.getOpenWeatherMap().get(API_KEY);
-        this.weatherApiUrl = generalSettings.getOpenWeatherMap().get(WEATHER_URL);
-        this.forecastApiUrl = generalSettings.getOpenWeatherMap().get(FORECAST_URL);
+        this.apiKey = generalSettings.getOpenWeatherMap().getApi().getKey();
+        this.weatherApiUrl = generalSettings.getOpenWeatherMap().getApi().getWeatherUrl();
+        this.forecastApiUrl = generalSettings.getOpenWeatherMap().getApi().getForecastUrl();
     }
 
     public String buildWeatherUrl(String str) {

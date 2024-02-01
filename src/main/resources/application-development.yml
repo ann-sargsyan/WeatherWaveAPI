@@ -5,7 +5,6 @@ spring:
 
 application:
   settings:
-    serverPort: 8088
     openWeatherMap:
       api:
         key: 675bf40b4d52b5fb5e47199ec8315931
@@ -13,8 +12,8 @@ application:
         forecastUrl: https://api.openweathermap.org/data/2.5/forecast
     yandexMap:
       api:
-        key: 675bf40b4d52b5fb5e47199ec8315931
-        url: https://api.yandex.com
+        key:
+        url:
     restTemplateProperties:
-        connectionTimeout: 3000
-        readTimeout: 3000
+      connectionTimeout: 3000
+      readTimeout: 3000
