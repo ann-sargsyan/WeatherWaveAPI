@@ -27,13 +27,16 @@ import static org.springframework.http.HttpMethod.GET;
 @Slf4j
 public class WeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
+    private static final String ERROR_MESSAGE = "Failed to retrieve weather data for city ";
+    private static final String STRING_MESSAGE_FORMAT = "Search string: %s and error: %s";
 
     @Value("${openWeatherMap.api.key}")
     private String apiKey;
 
     @Value("${openWeatherMap.api.url}")
     private String apiUrl;
-    public RestTemplate restTemplate = new RestTemplate();
+
+    private final RestTemplate restTemplate;
 
     public WeatherOpenApiContainer getWeatherBySelectedCity(String city) {
         String url = getUrlForSelectedCity(city);
@@ -49,7 +52,10 @@ public class WeatherService {
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(EXCEPTION_MESSAGE, e.getMessage());
-            throw new RuntimeException(e);
+            return WeatherOpenApiContainer.builder()
+                    .success(false)
+                    .errorMessage(String.format(STRING_MESSAGE_FORMAT, city, ERROR_MESSAGE))
+                    .build();
         }
     }
 
@@ -82,6 +88,5 @@ public class WeatherService {
                 .country(container.sunActivityInfo().country())
                 .weatherDescription(container.weather().get(0).description())
                 .build();
-
     }
 }

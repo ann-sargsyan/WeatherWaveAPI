@@ -1,9 +1,10 @@
 server:
   port: 8080
+
 openWeatherMap:
-      api:
-          key: 675bf40b4d52b5fb5e47199ec8315931
-          url: https://api.openweathermap.org/data/2.5/weather
+  api:
+    key: 675bf40b4d52b5fb5e47199ec8315931
+    url: https://api.openweathermap.org/data/2.5/weather
 
 restTemplate:
   properties:

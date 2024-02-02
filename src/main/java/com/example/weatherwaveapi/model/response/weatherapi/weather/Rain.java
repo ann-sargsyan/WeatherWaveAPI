@@ -1,4 +1,4 @@
-package com.example.weatherwaveapi.model.response.weatherapi.weather.type;
+package com.example.weatherwaveapi.model.response.weatherapi.weather;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

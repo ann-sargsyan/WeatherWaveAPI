@@ -20,11 +20,12 @@ public class WeatherController {
 
     private final WeatherService weatherService;
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WeatherResponse> getWeatherInSelectedCity(@PathVariable(name = "city") String city) {
+    @GetMapping(value = "/city", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WeatherResponse> getWeatherInSelectedCity(@RequestParam String city) {
         WeatherRequest weatherRequest = WeatherRequest.builder()
                 .cities(List.of(city))
                 .build();
+        log.info(REQUEST_MESSAGE, weatherRequest);
         WeatherResponse weatherResponse = weatherService.getWeather(weatherRequest);
         return ResponseEntity.ok(weatherResponse);
     }
@@ -38,5 +39,4 @@ public class WeatherController {
         WeatherResponse response = weatherService.getWeather(weatherRequest);
         return ResponseEntity.ok(response);
     }
-
 }

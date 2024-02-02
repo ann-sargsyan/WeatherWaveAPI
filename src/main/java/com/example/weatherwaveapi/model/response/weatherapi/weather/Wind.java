@@ -1,10 +1,10 @@
-package com.example.weatherwaveapi.model.response.weatherapi.weather.type;
+package com.example.weatherwaveapi.model.response.weatherapi.weather;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record Wind(
-        double speed,
+        Double speed,
         @JsonProperty("deg") int degrees,
-        double gust
+        Double gust
 ) {
 }
