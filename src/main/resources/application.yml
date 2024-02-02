@@ -1,7 +1,0 @@
-spring:
-  profiles:
-    active: development
-
-application:
-  settings:
-    serverPort: 8080
