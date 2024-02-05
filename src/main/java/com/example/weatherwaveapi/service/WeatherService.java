@@ -1,24 +1,21 @@
 package com.example.weatherwaveapi.service;
 
+import com.example.weatherwaveapi.util.urlbuilder.OpenWeatherUrlBuilder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@RequiredArgsConstructor
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class WeatherService {
+    private final OpenWeatherUrlBuilder urlBuilder;
+    private final RestTemplate restTemplate;
 
-    @Value("${openWeatherMap.api.key}")
-    private String apiKey;
-
-    @Value("${openWeatherMap.api.url}")
-    private String apiUrl;
-    public RestTemplate restTemplate = new RestTemplate();
-
-    public Object getWeatherBySelectedCity(String city){
-        System.out.println(apiUrl);
-        String url = apiUrl + "?q=" + city + "&appid=" + apiKey;
+    public Object getWeatherBySelectedCity(String city) {
+        String url = urlBuilder.buildWeatherUrl(city);
         return restTemplate.getForObject(url, Object.class);
     }
 }
+
