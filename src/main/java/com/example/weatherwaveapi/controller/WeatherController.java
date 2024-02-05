@@ -31,6 +31,13 @@ public class WeatherController {
                 .build();
         WeatherResponse weatherResponse = weatherService.getWeather(weatherRequest);
         return ResponseEntity.ok(weatherResponse);
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WeatherResponse> getWeatherInSelectedCity(@PathVariable(name = "city") String city) {
+        WeatherRequest weatherRequest = WeatherRequest.builder()
+                .cities(List.of(city))
+                .build();
+        WeatherResponse weatherResponse = weatherService.getWeather(weatherRequest);
+        return ResponseEntity.ok(weatherResponse);
     }
 
     @GetMapping(value = "/cities", produces = MediaType.APPLICATION_JSON_VALUE)
