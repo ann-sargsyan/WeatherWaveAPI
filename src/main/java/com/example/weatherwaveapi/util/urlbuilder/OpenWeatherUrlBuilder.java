@@ -1,51 +1,56 @@
 package com.example.weatherwaveapi.util.urlbuilder;
 
+import com.example.weatherwaveapi.config.GeneralSettings;
 import jakarta.ws.rs.core.UriBuilder;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
+import static com.example.weatherwaveapi.util.urlbuilder.ParameterList.*;
+
 @Component
+@RequiredArgsConstructor
 public class OpenWeatherUrlBuilder {
 
-    @Value("${openWeatherMap.api.key}")
-    private String apiKey;
+    private final GeneralSettings generalSettings;
 
-    @Value("${openWeatherMap.api.weatherUrl}")
-    private String weatherApiUrl;
-
-    @Value("${openWeatherMap.api.forecastUrl}")
-    private String forecastApiUrl;
-
-    public String buildWeatherUrl(String str) {
-        return UriBuilder.fromUri(weatherApiUrl)
-                .queryParam("q", str)
-                .queryParam("appid", apiKey)
-                .build()
-                .toString();
+    public String buildWeatherUrl(String query) {
+        return buildUrl(weatherApiUrl(), Map.of(QUERY_PARAM, query));
     }
 
-    public String buildForecastUrlForCity(String city){
-        return UriBuilder.fromUri(forecastApiUrl)
-                .queryParam("q", city)
-                .queryParam("appid", apiKey)
-                .build()
-                .toString();
+    public String buildForecastUrlForCity(String city) {
+        return buildUrl(forecastApiUrl(), Map.of(QUERY_PARAM, city));
     }
 
     public String buildWeatherUrlForZipcode(Integer zipcode, String country) {
-        return UriBuilder.fromUri(weatherApiUrl)
-                .queryParam("zip", zipcode, country)
-                .queryParam("appid", apiKey)
-                .build()
-                .toString();
+        return buildUrl(weatherApiUrl(), Map.of(ZIP_PARAM, zipcode + "," + country));
     }
 
     public String buildWeatherUrlForCoord(double lat, double lon) {
-        return UriBuilder.fromUri(weatherApiUrl)
-                .queryParam("lat", lat)
-                .queryParam("lon", lon)
-                .queryParam("appid", apiKey)
-                .build()
-                .toString();
+        return buildUrl(weatherApiUrl(), Map.of(LAT_PARAM, lat, LON_PARAM, lon));
     }
+
+    private String buildUrl(String apiUrl, Map<String, Object> queryParams) {
+        UriBuilder uriBuilder = UriBuilder
+                .fromUri(apiUrl)
+                .queryParam(API_KEY_PARAM, apiKey());
+
+        queryParams.forEach(uriBuilder::queryParam);
+
+        return uriBuilder.build().toString();
+    }
+
+    private String weatherApiUrl() {
+        return generalSettings.getOpenWeatherApi().weatherUrl();
+    }
+
+    private String forecastApiUrl() {
+        return generalSettings.getOpenWeatherApi().forecastUrl();
+    }
+
+    private String apiKey() {
+        return generalSettings.getOpenWeatherApi().key();
+    }
+
 }
