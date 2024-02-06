@@ -1,29 +1,42 @@
 package com.example.weatherwaveapi.model.response.weatherapi;
 
+import com.example.weatherwaveapi.model.response.ForecastData;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.Weather;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.type.Clouds;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.type.Rain;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.type.Wind;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
+import lombok.Setter;
 
 import java.util.List;
 
-@Builder(toBuilder = true)
+@Builder
 public record WeatherOpenApiContainer(
-        @JsonProperty("coord") Coordinates coordinates,
+        Boolean success,
+        String errorMessage,
+        @JsonProperty("coord")
+        Coordinates coordinates,
         List<Weather> weather,
         String base,
-        @JsonProperty("main") WeatherMetrics weatherMetrics,
-        int visibility,
+        @JsonProperty("main")
+        WeatherMetrics weatherMetrics,
+        Integer visibility,
         Wind wind,
         Rain rain,
         Clouds clouds,
-        @JsonProperty("dt") long dataTime,
+        @JsonProperty("dt")
+        Long dataTime,
         @JsonProperty("sys") SunActivityInfo sunActivityInfo,
-        int timezone,
-        @JsonProperty("id") int cityId,
-        @JsonProperty("name") String cityName,
-        @JsonProperty("cod") int internalParameter
+        Integer timezone,
+        @JsonProperty("id")
+        Integer cityId,
+        @JsonProperty("name")
+        String cityName,
+        @JsonProperty("cod")
+        Integer internalParameter,
+        @JsonProperty("city")
+        City cityDetails,
+        List<ForecastData> list
 ) {
 }
