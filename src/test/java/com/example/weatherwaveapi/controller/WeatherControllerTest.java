@@ -10,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
+
+import static com.example.util.WeatherApiUtil.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -20,14 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(WeatherController.class)
 class WeatherControllerTest {
-    private static final String LONDON = "London";
-    private static final String COUNTRY_OF_LONDON = "GB";
-    private static final Double LONDON_TEMPERATURE = 276.79;
-    private static final String LONDON_CLOUDS = "overcast clouds";
-    private static final String YEREVAN = "Yerevan";
-    private static final String COUNTRY_OF_YEREVAN = "AM";
-    private static final Double YEREVAN_TEMPERATURE = 271.24;
-    private static final String YEREVAN_CLOUDS = "scattered clouds";
     private static final String URL_FOR_CITY_LONDON = "http://localhost:8080/weather/city?city=london";
     private static final String URL_FOR_CITIES = "http://localhost:8080/weather/cities?cities=yerevan&cities=london";
 

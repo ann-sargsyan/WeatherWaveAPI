@@ -1,12 +1,12 @@
 package com.example.weatherwaveapi.service;
 
+import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.model.request.WeatherRequest;
 import com.example.weatherwaveapi.model.response.WeatherApiResponse;
 import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,13 +30,8 @@ public class WeatherService {
     private static final String ERROR_MESSAGE = "Failed to retrieve weather data for city ";
     private static final String STRING_MESSAGE_FORMAT = "Search string: %s and error: %s";
 
-    @Value("${openWeatherMap.api.key}")
-    private String apiKey;
-
-    @Value("${openWeatherMap.api.url}")
-    private String apiUrl;
-
     private final RestTemplate restTemplate;
+    private final GeneralSettings generalSettings;
 
     public WeatherOpenApiContainer getWeatherBySelectedCity(String city) {
         String url = getUrlForSelectedCity(city);
@@ -73,9 +68,9 @@ public class WeatherService {
     }
 
     private String getUrlForSelectedCity(String city) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(generalSettings.getOpenWeatherApi().weatherUrl())
                 .queryParam("q", city)
-                .queryParam("appid", apiKey);
+                .queryParam("appid", generalSettings.getOpenWeatherApi().key());
 
         return builder.toUriString();
     }

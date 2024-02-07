@@ -1,6 +1,7 @@
 package com.example.weatherwaveapi.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,17 +10,16 @@ import org.springframework.web.client.RestTemplate;
 import java.time.Duration;
 
 @Configuration
+@RequiredArgsConstructor
+@EnableConfigurationProperties(GeneralSettings.class)
 public class ApplicationConfiguration {
-    @Value("${restTemplate.properties.connectionTimeout}")
-    private int connectionTimeout;
-    @Value("${restTemplate.properties.readTimeout}")
-    private int readTimeout;
+    private final GeneralSettings generalSettings;
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder
-                .setConnectTimeout(Duration.ofMillis(connectionTimeout))
-                .setReadTimeout(Duration.ofMillis(readTimeout))
+                .setConnectTimeout(Duration.ofMillis(generalSettings.getRestTemplateProperties().connectionTimeout()))
+                .setReadTimeout(Duration.ofMillis(generalSettings.getRestTemplateProperties().readTimeout()))
                 .build();
     }
 }
