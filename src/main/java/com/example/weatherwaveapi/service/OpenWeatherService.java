@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,11 +86,10 @@ public class OpenWeatherService {
                     }
             );
             return responseEntity.getBody();
-
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(EXCEPTION_MESSAGE, e.getMessage());
             return WeatherOpenApiContainer.builder()
-                    .errorMessage(format)
+                    .errorMessage(String.format(STRING_MESSAGE_FORMAT, city, ERROR_MESSAGE))
                     .build();
         }
     }

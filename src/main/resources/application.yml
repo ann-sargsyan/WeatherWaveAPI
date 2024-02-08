@@ -1,11 +1,15 @@
 server:
   port: 8080
-openWeatherMap:
-      api:
-          key: 675bf40b4d52b5fb5e47199ec8315931
-          url: https://api.openweathermap.org/data/2.5/weather
 
-restTemplate:
-  properties:
+application:
+  settings:
+    openWeatherApi:
+      key: 675bf40b4d52b5fb5e47199ec8315931
+      weatherUrl: https://api.openweathermap.org/data/2.5/weather
+      forecastUrl: https://api.openweathermap.org/data/2.5/forecast
+    yandexApi:
+      key:
+      url:
+    restTemplateProperties:
       connectionTimeout: 3000
       readTimeout: 3000
