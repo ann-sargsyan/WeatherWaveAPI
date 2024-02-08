@@ -1,10 +1,6 @@
 package com.example.weatherwaveapi.model.response;
 
-import com.example.weatherwaveapi.model.response.weatherapi.City;
-import com.example.weatherwaveapi.model.response.weatherapi.WeatherMetrics;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.Weather;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.type.Clouds;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.example.weatherwaveapi.model.response.openweather.forecastapi.ForecastData;
 import lombok.Builder;
 
 
@@ -14,8 +10,6 @@ public record WeatherForecastResponse(
         Boolean success,
         String city,
         String country,
-        List<ForecastData> weather,
-        String date
+        List<ForecastData> forecastData
 ) {
-
 }

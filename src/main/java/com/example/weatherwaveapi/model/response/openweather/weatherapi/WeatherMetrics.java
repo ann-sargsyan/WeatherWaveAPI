@@ -1,7 +1,9 @@
-package com.example.weatherwaveapi.model.response.weatherapi;
+package com.example.weatherwaveapi.model.response.openweather.weatherapi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
+@Builder
 public record WeatherMetrics(
         Double temp,
         @JsonProperty("feels_like") Double feelsLike,

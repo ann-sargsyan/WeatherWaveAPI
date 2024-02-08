@@ -1,57 +1,42 @@
 package com.example;
 
-import com.example.weatherwaveapi.model.response.ForecastData;
-import com.example.weatherwaveapi.model.response.weatherapi.*;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.Weather;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.type.Clouds;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.type.Rain;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.type.Wind;
+import com.example.weatherwaveapi.model.response.openweather.WeatherOpenApiContainer;
+import com.example.weatherwaveapi.model.response.openweather.forecastapi.ForecastDataContainer;
+import com.example.weatherwaveapi.model.response.openweather.weatherapi.City;
+import com.example.weatherwaveapi.model.response.openweather.weatherapi.SunActivityInfo;
+import com.example.weatherwaveapi.model.response.openweather.weatherapi.WeatherMetrics;
+import com.example.weatherwaveapi.model.response.openweather.weatherapi.weather.Weather;
 
 import java.util.List;
 
 public class TestUtil {
     public static final String URL = "http://localhost:8080/weather/city=london";
-    public static final String CITY = "london";
+    public static final String CITY_LONDON = "london";
     public static final Integer ZIPCODE = 94040;
-    public static final String COUNTRY = "US";
+    public static final String COUNTRY_US = "US";
+    public static final double TEMPERATURE = 35D;
+    public static final int VISIBILITY = 10000;
+    public static final String COUNTRY_GB = "GB";
+    public static final String DESCRIPTION = "light intensity drizzle";
+    public static final String DATE = "2024-02-12 06:00:00";
 
 
     public static WeatherOpenApiContainer mockContainerForWeather = WeatherOpenApiContainer.builder()
-            .success(true)
-            .weatherMetrics(new WeatherMetrics(281.0, 1010D, 80D, 280.0, 280, 82, 1015, 1000))
-            .visibility(10000)
-            .sunActivityInfo(new SunActivityInfo(2, 5092, "GB", 1485762038L, 1485794876L))
-            .cityName(CITY)
-            .weather(List.of(new Weather(300, "Drizzle", "light intensity drizzle", "09d")))
+            .weatherMetrics(WeatherMetrics.builder().temp(TEMPERATURE).build())
+            .visibility(VISIBILITY)
+            .sunActivityInfo(SunActivityInfo.builder().country(COUNTRY_GB).build())
+            .cityName(CITY_LONDON)
+            .weather(List.of(Weather.builder().description(DESCRIPTION).build()))
             .build();
 
     public static WeatherOpenApiContainer mockContainerForForecast = WeatherOpenApiContainer.builder()
-            .success(true)
-            .list(List.of(new ForecastData(
-                    new WeatherMetrics(25.0,
-                            26.5,
-                            22.0,
-                            28.0,
-                            1015,
-                            60,
-                            1018,
-                            1010),
-                    List.of(new Weather(801,
-                            "Clouds",
-                            "Partly cloudy",
-                            "02d")),
-                    new Clouds(20),
-                    new Wind(10.5,
-                            120,
-                            12.3 ),
-                    1000,
-                    new Rain(1D),
-                    "2024-02-06 12:00:00")
-                    )
-            )
             .cityDetails(City.builder()
-                    .name(CITY)
-                    .country(COUNTRY)
-                    .build())
+                    .name(CITY_LONDON)
+                    .country(COUNTRY_GB).build())
+            .forecastData(List.of(ForecastDataContainer.builder()
+                            .date(DATE)
+                            .weatherMetrics(WeatherMetrics.builder().temp(TEMPERATURE).build())
+                            .weather(List.of(Weather.builder().description(DESCRIPTION).build()))
+                    .build()))
             .build();
 }

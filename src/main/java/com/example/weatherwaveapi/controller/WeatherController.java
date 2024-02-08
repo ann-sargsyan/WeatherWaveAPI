@@ -1,19 +1,13 @@
 package com.example.weatherwaveapi.controller;
 
 import com.example.weatherwaveapi.model.request.WeatherRequest;
+import com.example.weatherwaveapi.model.response.WeatherForecastResponse;
 import com.example.weatherwaveapi.model.response.WeatherResponse;
-import com.example.weatherwaveapi.service.WeatherService;
-import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
+import com.example.weatherwaveapi.service.impl.OpenWeatherServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-import static com.example.weatherwaveapi.serviceapienum.ServiceApiEnum.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,41 +16,17 @@ import static com.example.weatherwaveapi.serviceapienum.ServiceApiEnum.*;
 public class WeatherController {
     private static final String REQUEST_MESSAGE = "Request contain serviceApiEnumValue: {}";
 
-    private final WeatherService weatherService;
+    private final OpenWeatherServiceImpl openWeatherServiceImpl;
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WeatherResponse> getWeatherInSelectedCity(@PathVariable(name = "city") String city) {
-        WeatherRequest weatherRequest = WeatherRequest.builder()
-                .cities(List.of(city))
-                .build();
-        WeatherResponse weatherResponse = weatherService.getWeather(weatherRequest);
-        return ResponseEntity.ok(weatherResponse);
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WeatherResponse> getWeatherInSelectedCity(@PathVariable(name = "city") String city) {
-        WeatherRequest weatherRequest = WeatherRequest.builder()
-                .cities(List.of(city))
-                .build();
-        WeatherResponse weatherResponse = weatherService.getWeather(weatherRequest);
-        return ResponseEntity.ok(weatherResponse);
+    @GetMapping({"/city"})
+    public ResponseEntity<WeatherResponse> getWeather(@RequestBody WeatherRequest request){
+        return ResponseEntity.ok(openWeatherServiceImpl.getWeather(request));
     }
 
-    @GetMapping(value = "/cities", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WeatherResponse> getWeatherInSelectedCities(
-            @RequestParam(value = "cities") List<String> cities,
-            @RequestParam(value = "serviceApi", required = false) ServiceApiEnum serviceApi) {
-        WeatherRequest weatherRequest = WeatherRequest.builder()
-                .cities(cities)
-                .service(validate(serviceApi))
-                .build();
-        log.info(REQUEST_MESSAGE, weatherRequest.service());
-        WeatherResponse response = weatherService.getWeather(weatherRequest);
-        return ResponseEntity.ok(response);
+    @GetMapping({"/forecast/{city}"})
+    public ResponseEntity<WeatherForecastResponse> getForecast(@PathVariable String city){
+        return ResponseEntity.ok(openWeatherServiceImpl.getForecast(city));
     }
 
-    private ServiceApiEnum validate(ServiceApiEnum serviceApi) {
-        if( ALL.equals(serviceApi) ||YANDEX.equals(serviceApi) || OPEN_WEATHER_MAP.equals(serviceApi)){
-            return serviceApi;
-        }
-        return ALL;
-    }
+
 }
