@@ -5,7 +5,6 @@ import lombok.Builder;
 
 @Builder
 public record WeatherApiResponse(
-        Boolean success,
         String city,
         String country,
         Double temperature,

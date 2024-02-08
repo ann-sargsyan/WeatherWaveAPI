@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record Wind(
         Double speed,
-        @JsonProperty("deg") int degrees,
+        @JsonProperty("deg") Integer degrees,
         Double gust
 ) {
 }

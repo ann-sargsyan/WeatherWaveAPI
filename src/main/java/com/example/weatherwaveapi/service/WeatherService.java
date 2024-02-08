@@ -44,11 +44,9 @@ public class WeatherService {
                     }
             );
             return responseEntity.getBody();
-
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(EXCEPTION_MESSAGE, e.getMessage());
             return WeatherOpenApiContainer.builder()
-                    .success(false)
                     .errorMessage(String.format(STRING_MESSAGE_FORMAT, city, ERROR_MESSAGE))
                     .build();
         }
@@ -77,7 +75,6 @@ public class WeatherService {
 
     private WeatherApiResponse convertContainer(WeatherOpenApiContainer container) {
         return WeatherApiResponse.builder()
-                .success(true)
                 .temperature(container.weatherMetrics().temp())
                 .city(container.cityName())
                 .country(container.sunActivityInfo().country())

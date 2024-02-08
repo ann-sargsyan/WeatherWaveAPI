@@ -8,7 +8,6 @@ import java.util.List;
 
 @Builder
 public record WeatherOpenApiContainer(
-        Boolean success,
         String errorMessage,
         @JsonProperty("coord") Coordinates coordinates,
         List<Weather> weather,

@@ -75,7 +75,6 @@ class WeatherServiceTest {
         RecordedRequest request = mockWebServer.takeRequest();
         assertEquals(request.getMethod(), GET);
         assertEquals(EXPECTED_PATH_LONDON, request.getPath());
-        assertTrue(container.success());
         assertEquals(container.cityName(), LONDON);
     }
 
@@ -110,7 +109,6 @@ class WeatherServiceTest {
                 .asInstanceOf(InstanceOfAssertFactories.list(WeatherApiResponse.class))
                 .hasSize(1)
                 .first()
-                .returns(true, WeatherApiResponse::success)
                 .returns(YEREVAN_TEMPERATURE, WeatherApiResponse::temperature)
                 .returns(YEREVAN, WeatherApiResponse::city)
                 .returns(COUNTRY_OF_YEREVAN, WeatherApiResponse::country)
@@ -130,7 +128,6 @@ class WeatherServiceTest {
 
     private WeatherOpenApiContainer createMockContainer() {
         return WeatherOpenApiContainer.builder()
-                .success(true)
                 .cityName(LONDON)
                 .build();
     }
