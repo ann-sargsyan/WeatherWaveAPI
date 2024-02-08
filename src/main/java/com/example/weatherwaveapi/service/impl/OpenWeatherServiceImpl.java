@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -38,12 +39,12 @@ public class OpenWeatherServiceImpl implements WeatherService {
     public WeatherResponse getWeather(WeatherRequest request) {
         List<WeatherApiResponse> weatherResponses = new ArrayList<>();
 
-        if (request.cities() != null && !request.cities().isEmpty()) {
+        if (!CollectionUtils.isEmpty(request.cities())) {
             weatherResponses = request.cities().stream()
                     .map(this::getWeatherBySelectedCity)
                     .map(this::convertContainer)
                     .collect(Collectors.toList());
-        } else if (request.zipCodeCountryMap() != null && !request.zipCodeCountryMap().isEmpty()) {
+        } else if (!CollectionUtils.isEmpty(request.zipCodeCountryMap())) {
             weatherResponses = request.zipCodeCountryMap().entrySet().stream()
                     .map(entry -> getWeatherByZipCode(entry.getKey(), entry.getValue()))
                     .map(this::convertContainer)
