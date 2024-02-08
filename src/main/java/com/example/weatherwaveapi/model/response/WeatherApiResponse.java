@@ -7,7 +7,7 @@ import lombok.Builder;
 public record WeatherApiResponse(
         String city,
         String country,
-        double temperature,
+        Double temperature,
         String weatherDescription
 ) {
 }

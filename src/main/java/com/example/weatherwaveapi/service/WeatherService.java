@@ -29,7 +29,8 @@ public class WeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
     private static final String ERROR_MESSAGE = "Failed to retrieve weather data for city ";
     private static final String STRING_MESSAGE_FORMAT = "Search string: %s and error: %s";
-    public final RestTemplate restTemplate;
+
+    private final RestTemplate restTemplate;
     private final GeneralSettings generalSettings;
 
     public WeatherOpenApiContainer getWeatherBySelectedCity(String city) {
@@ -43,7 +44,6 @@ public class WeatherService {
                     }
             );
             return responseEntity.getBody();
-
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(EXCEPTION_MESSAGE, e.getMessage());
             return WeatherOpenApiContainer.builder()
@@ -76,10 +76,9 @@ public class WeatherService {
     private WeatherApiResponse convertContainer(WeatherOpenApiContainer container) {
         return WeatherApiResponse.builder()
                 .temperature(container.weatherMetrics().temp())
-                .city(container.name())
+                .city(container.cityName())
                 .country(container.sunActivityInfo().country())
                 .weatherDescription(container.weather().get(0).description())
                 .build();
     }
-
 }
