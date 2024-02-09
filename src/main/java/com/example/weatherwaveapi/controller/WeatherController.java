@@ -14,7 +14,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.util.List;
 
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/weather")
@@ -54,7 +53,5 @@ public class WeatherController {
                 .build();
 
         log.info(REQUEST_MESSAGE, weatherRequest.service());
-        WeatherResponse response = weatherService.getWeather(weatherRequest);
-        return ResponseEntity.ok(response);
     }
 }
