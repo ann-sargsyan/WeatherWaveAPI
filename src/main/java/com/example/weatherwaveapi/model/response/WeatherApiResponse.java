@@ -3,12 +3,11 @@ package com.example.weatherwaveapi.model.response;
 import lombok.Builder;
 
 
-@Builder(toBuilder = true)
+@Builder
 public record WeatherApiResponse(
-        boolean success,
         String city,
         String country,
-        double temperature,
+        Double temperature,
         String weatherDescription
 ) {
 }
