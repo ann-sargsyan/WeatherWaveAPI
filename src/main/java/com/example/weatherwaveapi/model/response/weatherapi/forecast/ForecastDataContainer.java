@@ -1,10 +1,7 @@
-package com.example.weatherwaveapi.model.response.openweather.forecastapi;
+package com.example.weatherwaveapi.model.response.weatherapi.forecast;
 
-import com.example.weatherwaveapi.model.response.openweather.weatherapi.WeatherMetrics;
-import com.example.weatherwaveapi.model.response.openweather.weatherapi.weather.Weather;
-import com.example.weatherwaveapi.model.response.openweather.weatherapi.weather.type.Clouds;
-import com.example.weatherwaveapi.model.response.openweather.weatherapi.weather.type.Rain;
-import com.example.weatherwaveapi.model.response.openweather.weatherapi.weather.type.Wind;
+
+import com.example.weatherwaveapi.model.response.weatherapi.weather.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 

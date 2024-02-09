@@ -1,5 +1,6 @@
-package com.example.weatherwaveapi.model.response.openweather.weatherapi;
+package com.example.weatherwaveapi.model.response.weatherapi.forecast;
 
+import com.example.weatherwaveapi.model.response.weatherapi.weather.Coordinates;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 
