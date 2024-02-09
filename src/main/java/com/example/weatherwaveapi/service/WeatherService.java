@@ -7,7 +7,6 @@ import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -81,7 +80,6 @@ public class WeatherService {
                 .country(container.sunActivityInfo().country())
                 .weatherDescription(container.weather().get(0).description())
                 .build();
-
     }
 
 }

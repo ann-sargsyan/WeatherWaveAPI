@@ -9,8 +9,9 @@ import lombok.Builder;
 
 import java.util.List;
 
-@Builder(toBuilder = true)
+@Builder
 public record WeatherOpenApiContainer(
+        String errorMessage,
         @JsonProperty("coord") Coordinates coordinates,
         List<Weather> weather,
         String base,
