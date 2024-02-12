@@ -20,8 +20,7 @@ import java.util.List;
 @Slf4j
 public class WeatherController {
     private static final String REQUEST_MESSAGE = "Request contain serviceApiEnumValue: {}";
-    private static final String INVALID_INPUT = "Invalid input for parameter";
-    private static final String PROVIDE_VALID_VALUE = ". Please provide a valid value.";
+    private static final String INVALID_INPUT_MESSAGE = "Invalid input for parameter %s. Please provide a valid value.";
 
     private final WeatherService weatherService;
 
@@ -42,8 +41,7 @@ public class WeatherController {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String errorMessage = INVALID_INPUT + ex.getName() + PROVIDE_VALID_VALUE;
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(String.format(INVALID_INPUT_MESSAGE, ex.getName()));
     }
 
     private ResponseEntity<WeatherResponse> getWeatherResponse(List<String> cities, ServiceApiEnum serviceApi) {
@@ -51,7 +49,8 @@ public class WeatherController {
                 .cities(cities)
                 .service(serviceApi)
                 .build();
-
         log.info(REQUEST_MESSAGE, weatherRequest.service());
+        WeatherResponse weatherResponse = weatherService.getWeather(weatherRequest);
+        return ResponseEntity.ok(weatherResponse);
     }
 }

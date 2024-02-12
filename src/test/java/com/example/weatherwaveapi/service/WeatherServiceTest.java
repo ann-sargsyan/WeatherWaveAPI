@@ -9,6 +9,7 @@ import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContai
 import com.example.weatherwaveapi.model.response.weatherapi.weather.SunActivityInfo;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.Weather;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherMetrics;
+import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
@@ -83,7 +84,7 @@ class WeatherServiceTest {
         RestTemplate restTemplate = mock(RestTemplate.class);
         WeatherService weatherService = new WeatherService(restTemplate, generalSettings);
         List<String> cities = Arrays.asList(YEREVAN);
-        WeatherRequest weatherRequest = new WeatherRequest(cities);
+        WeatherRequest weatherRequest = new WeatherRequest(cities, ServiceApiEnum.OPEN_WEATHER_MAP);
         WeatherOpenApiContainer weatherOpenApiContainer = WeatherOpenApiContainer
                 .builder()
                 .weatherMetrics(WeatherMetrics.builder()
@@ -119,7 +120,7 @@ class WeatherServiceTest {
     void testGetWeather_Failure() {
         WeatherService mockedWeatherService = Mockito.mock(WeatherService.class);
         List<String> cities = Arrays.asList(LONDON, YEREVAN);
-        WeatherRequest request = new WeatherRequest(cities);
+        WeatherRequest request = new WeatherRequest(cities, ServiceApiEnum.OPEN_WEATHER_MAP);
 
         when(mockedWeatherService.getWeather(any(WeatherRequest.class))).thenThrow(new RuntimeException("Test exception"));
 
