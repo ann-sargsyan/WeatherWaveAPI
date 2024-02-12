@@ -1,7 +1,9 @@
 package com.example.weatherwaveapi.model.response.weatherapi.weather;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record Coordinates(
-        Double lon,
-        Double lat
+        @JsonProperty("lon") Double longitude,
+        @JsonProperty("lat") Double latitude
 ) {
 }

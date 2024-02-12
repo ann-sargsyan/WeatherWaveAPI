@@ -1,6 +1,8 @@
 package com.example.weatherwaveapi.model.response.weatherapi.weather;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record Clouds(
-        Integer all
+        @JsonProperty("all") Integer cloudiness
 ) {
 }
