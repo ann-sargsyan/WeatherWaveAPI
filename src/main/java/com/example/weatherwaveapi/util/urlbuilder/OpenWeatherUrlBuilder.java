@@ -9,6 +9,7 @@ import java.util.Map;
 
 import static com.example.weatherwaveapi.util.urlbuilder.ParameterList.*;
 
+
 @Component
 @RequiredArgsConstructor
 public class OpenWeatherUrlBuilder {
@@ -24,7 +25,11 @@ public class OpenWeatherUrlBuilder {
     }
 
     public String buildWeatherUrlForZipcode(Integer zipcode, String country) {
-        return buildUrl(weatherApiUrl(), Map.of(ZIP_PARAM, zipcode + "," + country));
+        return UriBuilder.fromUri(weatherApiUrl())
+                .queryParam(API_KEY_PARAM, apiKey())
+                .queryParam(ZIP_PARAM, zipcode, country)
+                .build()
+                .toString();
     }
 
     public String buildWeatherUrlForCoord(double lat, double lon) {

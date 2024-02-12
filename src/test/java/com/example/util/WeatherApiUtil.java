@@ -12,4 +12,9 @@ public final class WeatherApiUtil {
     public static final String COUNTRY_OF_YEREVAN = "AM";
     public static final Double YEREVAN_TEMPERATURE = 271.24;
     public static final String YEREVAN_CLOUDS = "scattered clouds";
+    public static final Integer ZIPCODE = 94040;
+    public static final String COUNTRY_USA = "US";
+    public static final String DATE = "2024-02-12 06:00:00";
+    public static final String DESCRIPTION = "light intensity drizzle";
+    public static final double USA_TEMPERATURE = 35D;
 }
