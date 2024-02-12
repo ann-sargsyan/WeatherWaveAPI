@@ -8,6 +8,7 @@ import java.util.List;
 @Builder
 public record WeatherRequest(
         List<String> cities,
-        ServiceApiEnum service
+        ServiceApiEnum service,
+        List<ZipCodeWeatherRequest> zipcode
 ) {
 }

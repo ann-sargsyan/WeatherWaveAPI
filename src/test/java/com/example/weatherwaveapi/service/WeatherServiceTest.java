@@ -12,6 +12,7 @@ import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherMetri
 import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.weatherwaveapi.util.urlbuilder.OpenWeatherUrlBuilder;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
