@@ -10,8 +10,9 @@ application:
       weatherUrl: https://api.openweathermap.org/data/2.5/weather
       forecastUrl: https://api.openweathermap.org/data/2.5/forecast
     yandexApi:
-      key:
-      url:
+      key: X-Yandex-API-Key
+      value: 13cd7771-c622-4f86-a1fb-39abad43ce2a
+      url: https://api.weather.yandex.ru/v2/informers
     restTemplateProperties:
       connectionTimeout: 3000
       readTimeout: 3000

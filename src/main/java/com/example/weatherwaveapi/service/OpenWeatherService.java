@@ -1,9 +1,9 @@
 package com.example.weatherwaveapi.service;
 
-import com.example.weatherwaveapi.model.request.WeatherRequest;
-import com.example.weatherwaveapi.model.response.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.WeatherForecastResponse;
-import com.example.weatherwaveapi.model.response.WeatherResponse;
+import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import com.example.weatherwaveapi.util.exception.InvalidZipCodeException;
 import com.example.weatherwaveapi.util.urlbuilder.OpenWeatherUrlBuilder;
@@ -29,7 +29,7 @@ import static org.springframework.http.HttpMethod.GET;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class WeatherService {
+public class OpenWeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
     private static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
     private static final String FORECAST_ERROR_MESSAGE = "Failed to retrieve forecast data";
@@ -41,7 +41,7 @@ public class WeatherService {
     private final RestTemplate restTemplate;
     private final OpenWeatherUrlBuilder urlBuilder;
 
-    public WeatherResponse getWeather(WeatherRequest request) {
+    public WeatherResponse getWeather(OpenWeatherRequest request) {
         List<WeatherApiResponse> weatherResponses = new ArrayList<>();
 
         if (!CollectionUtils.isEmpty(request.cities())) {
@@ -104,7 +104,7 @@ public class WeatherService {
     private WeatherOpenApiContainer getWeatherByZipCode(Integer zipcode, String country) {
         validateZipCode(zipcode);
         String url = Optional.ofNullable(country)
-                .map(c -> urlBuilder.buildWeatherUrlForZipcode(zipcode, c))
+                .map(c -> urlBuilder.buildOpenWeatherUrlForZipcode(zipcode, c))
                 .orElse(urlBuilder.buildWeatherUrl(zipcode.toString()));
 
         return getWeatherOpenApiContainer(url, String.format(STRING_MESSAGE_FORMAT, zipcode, WEATHER_ERROR_MESSAGE));

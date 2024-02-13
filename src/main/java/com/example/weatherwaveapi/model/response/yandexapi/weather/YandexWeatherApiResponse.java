@@ -1,17 +1,17 @@
-package com.example.weatherwaveapi.model.response;
+package com.example.weatherwaveapi.model.response.yandexapi.weather;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
-
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record WeatherApiResponse(
+public record YandexWeatherApiResponse(
         Boolean success,
         String errorMessage,
-        String city,
-        String country,
+        Double latitude,
+        Double longitude,
         Double temperature,
-        String weatherDescription
+        String condition,
+        String date
 ) {
 }

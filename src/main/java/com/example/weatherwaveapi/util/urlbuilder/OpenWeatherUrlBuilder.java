@@ -17,45 +17,62 @@ public class OpenWeatherUrlBuilder {
     private final GeneralSettings generalSettings;
 
     public String buildWeatherUrl(String query) {
-        return buildUrl(weatherApiUrl(), Map.of(QUERY_PARAM, query));
+        return buildUrl(OPEN_WEATHER_API_KEY_PARAM, openWeatherApiUrl(), Map.of(QUERY_PARAM, query));
     }
 
     public String buildForecastUrlForCity(String city) {
-        return buildUrl(forecastApiUrl(), Map.of(QUERY_PARAM, city));
+        return buildUrl(OPEN_WEATHER_API_KEY_PARAM, openWeatherForecastApiUrl(), Map.of(QUERY_PARAM, city));
     }
 
-    public String buildWeatherUrlForZipcode(Integer zipcode, String country) {
-        return UriBuilder.fromUri(weatherApiUrl())
-                .queryParam(API_KEY_PARAM, apiKey())
+    public String buildOpenWeatherUrlForZipcode(Integer zipcode, String country) {
+        return UriBuilder.fromUri(openWeatherApiUrl())
+                .queryParam(OPEN_WEATHER_API_KEY_PARAM, openWeatherApiKey())
                 .queryParam(ZIP_PARAM, zipcode, country)
                 .build()
                 .toString();
     }
 
-    public String buildWeatherUrlForCoord(double lat, double lon) {
-        return buildUrl(weatherApiUrl(), Map.of(LAT_PARAM, lat, LON_PARAM, lon));
+    public String buildOpenWeatherUrlForCoord(double lat, double lon) {
+        return buildUrl(OPEN_WEATHER_API_KEY_PARAM, openWeatherApiUrl(), Map.of(LAT_PARAM, lat, LON_PARAM, lon));
     }
 
-    private String buildUrl(String apiUrl, Map<String, Object> queryParams) {
+    public String buildYandexWeatherUrlForCoord(double lat, double lon) {
+        return buildUrl(yandexWeatherApiUrl(), Map.of(LAT_PARAM, lat, LON_PARAM, lon));
+    }
+
+    private String buildUrl(String keyParam, String apiUrl, Map<String, Object> queryParams) {
         UriBuilder uriBuilder = UriBuilder
                 .fromUri(apiUrl)
-                .queryParam(API_KEY_PARAM, apiKey());
+                .queryParam(keyParam, openWeatherApiKey());
 
         queryParams.forEach(uriBuilder::queryParam);
 
         return uriBuilder.build().toString();
     }
 
-    private String weatherApiUrl() {
+    private String buildUrl(String apiUrl, Map<String, Object> queryParams) {
+        UriBuilder uriBuilder = UriBuilder
+                .fromUri(apiUrl);
+
+        queryParams.forEach(uriBuilder::queryParam);
+
+        return uriBuilder.build().toString();
+    }
+
+    private String openWeatherApiUrl() {
         return generalSettings.getOpenWeatherApi().weatherUrl();
     }
 
-    private String forecastApiUrl() {
+    private String openWeatherForecastApiUrl() {
         return generalSettings.getOpenWeatherApi().forecastUrl();
     }
 
-    private String apiKey() {
+    private String openWeatherApiKey() {
         return generalSettings.getOpenWeatherApi().key();
+    }
+
+    private String yandexWeatherApiUrl() {
+        return generalSettings.getYandexApi().url();
     }
 
 }

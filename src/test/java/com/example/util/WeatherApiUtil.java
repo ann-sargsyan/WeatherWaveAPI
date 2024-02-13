@@ -16,5 +16,10 @@ public final class WeatherApiUtil {
     public static final String COUNTRY_USA = "US";
     public static final String DATE = "2024-02-12 06:00:00";
     public static final String DESCRIPTION = "light intensity drizzle";
-    public static final double USA_TEMPERATURE = 35D;
+    public static final Double USA_TEMPERATURE = 35D;
+    public static final Double MOSCOW_LAT = 55.75396;
+    public static final Double MOSCOW_LON = 37.620393;
+    public static final Integer WEEK_NUMBER = 7;
+    public static final String DAY_TIME = "morning";
+    public static final Double MOSCOW_TEMPERATURE = 15.5;
 }

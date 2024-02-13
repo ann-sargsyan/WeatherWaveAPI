@@ -2,11 +2,11 @@ package com.example.weatherwaveapi.service;
 
 import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.config.OpenWeatherApi;
-import com.example.weatherwaveapi.model.request.WeatherRequest;
+import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
 import com.example.weatherwaveapi.model.request.ZipCodeWeatherRequest;
-import com.example.weatherwaveapi.model.response.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.WeatherForecastResponse;
-import com.example.weatherwaveapi.model.response.WeatherResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import com.example.weatherwaveapi.model.response.weatherapi.forecast.City;
 import com.example.weatherwaveapi.model.response.weatherapi.forecast.ForecastDataContainer;
@@ -44,14 +44,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class WeatherServiceTest {
+class OpenWeatherServiceTest {
     private static final String EXCEPTION_MESSAGE = "The 'getWeatherBySelectedCity' method returned a null container for city: ";
     private static final String LOCALHOST = "http://localhost:";
     private static final String EXPECTED_PATH_LONDON = "/?appid=&q=London";
     private static final String PLACEHOLDER = "%s";
     private static final String SKIP = "";
     private static final String GET = "GET";
-    private WeatherService weatherService;
+    private OpenWeatherService openWeatherService;
     private MockWebServer mockWebServer;
     private GeneralSettings generalSettings;
     private OpenWeatherUrlBuilder urlBuilder;
@@ -63,7 +63,7 @@ class WeatherServiceTest {
         urlBuilder = new OpenWeatherUrlBuilder(generalSettings);
         OpenWeatherApi openWeatherApi = new OpenWeatherApi(SKIP, LOCALHOST + mockWebServer.getPort(), SKIP);
         generalSettings.setOpenWeatherApi(openWeatherApi);
-        weatherService = new WeatherService(new RestTemplate(), urlBuilder);
+        openWeatherService = new OpenWeatherService(new RestTemplate(), urlBuilder);
         String url = String.format(LOCALHOST + PLACEHOLDER, mockWebServer.getPort());
         mockWebServer.url(url + "/weather");
         mockWebServer.enqueue(
@@ -75,9 +75,9 @@ class WeatherServiceTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    void testGetWeatherByCities(WeatherRequest weatherRequest) {
+    void testGetWeatherByCities(OpenWeatherRequest weatherRequest) {
         RestTemplate restTemplate = mock(RestTemplate.class);
-        WeatherService weatherService = new WeatherService(restTemplate, urlBuilder);
+        OpenWeatherService openWeatherService = new OpenWeatherService(restTemplate, urlBuilder);
 
         WeatherOpenApiContainer weatherOpenApiContainer = WeatherOpenApiContainer
                 .builder()
@@ -96,7 +96,7 @@ class WeatherServiceTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(weatherOpenApiContainer));
 
-        WeatherResponse actualResponse = weatherService.getWeather(weatherRequest);
+        WeatherResponse actualResponse = openWeatherService.getWeather(weatherRequest);
 
 
         assertThat(actualResponse.responses())
@@ -112,10 +112,10 @@ class WeatherServiceTest {
 
     private static Stream<Arguments> parameters() {
         return Stream.of(
-                Arguments.of(WeatherRequest.builder()
+                Arguments.of(OpenWeatherRequest.builder()
                         .cities(List.of(LONDON))
                         .build()),
-                Arguments.of(WeatherRequest.builder()
+                Arguments.of(OpenWeatherRequest.builder()
                         .zipcode(List.of(ZipCodeWeatherRequest.builder()
                                 .zipcode(ZIPCODE)
                                 .country(COUNTRY_USA)
@@ -126,21 +126,21 @@ class WeatherServiceTest {
 
     @Test
     void testGetWeather_Failure() {
-        WeatherService mockedWeatherService = Mockito.mock(WeatherService.class);
+        OpenWeatherService mockedOpenWeatherService = Mockito.mock(OpenWeatherService.class);
         List<String> cities = Arrays.asList(LONDON, YEREVAN);
-        WeatherRequest request = WeatherRequest.builder()
+        OpenWeatherRequest request = OpenWeatherRequest.builder()
                 .cities(cities)
                 .build();
 
-        when(mockedWeatherService.getWeather(any(WeatherRequest.class))).thenThrow(new RuntimeException("Test exception"));
+        when(mockedOpenWeatherService.getWeather(any(OpenWeatherRequest.class))).thenThrow(new RuntimeException("Test exception"));
 
-        assertThrows(RuntimeException.class, () -> mockedWeatherService.getWeather(request));
+        assertThrows(RuntimeException.class, () -> mockedOpenWeatherService.getWeather(request));
     }
 
     @Test
     void testGetForecast() {
         RestTemplate restTemplate = mock(RestTemplate.class);
-        WeatherService weatherService = new WeatherService(restTemplate, urlBuilder);
+        OpenWeatherService openWeatherService = new OpenWeatherService(restTemplate, urlBuilder);
 
         WeatherOpenApiContainer mockContainerForForecast = WeatherOpenApiContainer.builder()
                 .cityDetails(City.builder()
@@ -157,7 +157,7 @@ class WeatherServiceTest {
                 .thenReturn(ResponseEntity.ok(mockContainerForForecast));
 
 
-        WeatherForecastResponse forecastResponse = weatherService.getForecast(LONDON);
+        WeatherForecastResponse forecastResponse = openWeatherService.getForecast(LONDON);
 
         assertAll(
                 () -> assertEquals(mockContainerForForecast.forecastContainer(), forecastResponse.forecastData()),
