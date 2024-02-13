@@ -22,4 +22,6 @@ public final class WeatherApiUtil {
     public static final Integer WEEK_NUMBER = 7;
     public static final String DAY_TIME = "morning";
     public static final Double MOSCOW_TEMPERATURE = 15.5;
+    public static final String INVALID_COORDINATES_MESSAGE_FORMAT = "Invalid coordinates: %s. %s";
+    public static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
 }
