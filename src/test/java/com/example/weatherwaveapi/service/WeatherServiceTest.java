@@ -41,21 +41,22 @@ import static org.mockito.Mockito.*;
 class WeatherServiceTest {
     private static final String EXCEPTION_MESSAGE = "The 'getWeatherBySelectedCity' method returned a null container for city: ";
     private static final String LOCALHOST = "http://localhost:";
-    private static final String EXPECTED_PATH_LONDON = "/?q=London&appid=";
+    private static final String EXPECTED_PATH_LONDON = "/?appid=&q=London";
     private static final String PLACEHOLDER = "%s";
     private static final String SKIP = "";
     private static final String GET = "GET";
     private WeatherService weatherService;
     private MockWebServer mockWebServer;
-    private GeneralSettings generalSettings;
+    private OpenWeatherUrlBuilder openWeatherUrlBuilder;
 
     @BeforeEach
     void setup() throws IOException {
         mockWebServer = new MockWebServer();
-        generalSettings = new GeneralSettings();
+        GeneralSettings generalSettings = new GeneralSettings();
+        openWeatherUrlBuilder = new OpenWeatherUrlBuilder(generalSettings);
         OpenWeatherApi openWeatherApi = new OpenWeatherApi(SKIP, LOCALHOST + mockWebServer.getPort(), SKIP);
         generalSettings.setOpenWeatherApi(openWeatherApi);
-        weatherService = new WeatherService(new RestTemplate(), generalSettings);
+        weatherService = new WeatherService(new RestTemplate(), openWeatherUrlBuilder);
         String url = String.format(LOCALHOST + PLACEHOLDER, mockWebServer.getPort());
         mockWebServer.url(url + "/weather");
         mockWebServer.enqueue(
@@ -66,26 +67,11 @@ class WeatherServiceTest {
     }
 
     @Test
-    void testGetWeatherBySelectedCity() throws InterruptedException {
-        String city = LONDON;
-        WeatherOpenApiContainer container;
-        try {
-            container = weatherService.getWeatherBySelectedCity(city);
-        } catch (NullPointerException e) {
-            throw new IllegalStateException(EXCEPTION_MESSAGE + city, e);
-        }
-        RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals(request.getMethod(), GET);
-        assertEquals(EXPECTED_PATH_LONDON, request.getPath());
-        assertEquals(container.cityName(), LONDON);
-    }
-
-    @Test
     void testGetWeather() {
         RestTemplate restTemplate = mock(RestTemplate.class);
-        WeatherService weatherService = new WeatherService(restTemplate, generalSettings);
+        WeatherService weatherService = new WeatherService(restTemplate, openWeatherUrlBuilder);
         List<String> cities = Arrays.asList(YEREVAN);
-        WeatherRequest weatherRequest = new WeatherRequest(cities, ServiceApiEnum.OPEN_WEATHER_MAP);
+        WeatherRequest weatherRequest = new WeatherRequest(cities, ServiceApiEnum.OPEN_WEATHER_MAP, null);
         WeatherOpenApiContainer weatherOpenApiContainer = WeatherOpenApiContainer
                 .builder()
                 .weatherMetrics(WeatherMetrics.builder()
@@ -121,7 +107,7 @@ class WeatherServiceTest {
     void testGetWeather_Failure() {
         WeatherService mockedWeatherService = Mockito.mock(WeatherService.class);
         List<String> cities = Arrays.asList(LONDON, YEREVAN);
-        WeatherRequest request = new WeatherRequest(cities, ServiceApiEnum.OPEN_WEATHER_MAP);
+        WeatherRequest request = new WeatherRequest(cities, ServiceApiEnum.OPEN_WEATHER_MAP, null);
 
         when(mockedWeatherService.getWeather(any(WeatherRequest.class))).thenThrow(new RuntimeException("Test exception"));
 
