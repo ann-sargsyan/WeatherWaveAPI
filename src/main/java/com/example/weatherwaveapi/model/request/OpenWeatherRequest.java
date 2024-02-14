@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record WeatherRequest(
+public record OpenWeatherRequest(
         List<String> cities,
         ServiceApiEnum service,
         List<ZipCodeWeatherRequest> zipcode

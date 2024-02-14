@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder
 public record WeatherMetrics(
         Double temp,
-        @JsonProperty("feels_like") Double feelsLike,
+        @JsonProperty("feelsLike") Double feelsLike,
         @JsonProperty("temp_min") Double tempMin,
         @JsonProperty("temp_max") Double tempMax,
         Integer pressure,

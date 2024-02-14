@@ -1,4 +1,4 @@
-package com.example.weatherwaveapi.model.response;
+package com.example.weatherwaveapi.model.response.weatherapi.weather;
 
 import lombok.Builder;
 

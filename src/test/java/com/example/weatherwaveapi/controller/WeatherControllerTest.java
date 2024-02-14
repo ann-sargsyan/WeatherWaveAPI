@@ -1,11 +1,12 @@
 package com.example.weatherwaveapi.controller;
 
-import com.example.weatherwaveapi.model.request.WeatherRequest;
-import com.example.weatherwaveapi.model.response.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.WeatherResponse;
-import com.example.weatherwaveapi.service.WeatherService;
+import com.example.util.WeatherApiUtil;
 import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
 import org.junit.jupiter.api.Test;
+import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
+import com.example.weatherwaveapi.service.OpenWeatherService;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -38,14 +39,14 @@ class WeatherControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private WeatherService weatherService;
+    private OpenWeatherService openWeatherService;
 
     @ParameterizedTest
     @MethodSource("parameters")
     void testGetWeatherInSelectedCity_Success(String url, WeatherApiResponse weatherApiResponse) throws Exception {
         WeatherResponse mockedResponse = WeatherResponse.builder().responses(List.of(weatherApiResponse)).build();
 
-        when(weatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
+        when(openWeatherService.getWeather(any(OpenWeatherRequest.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
@@ -72,7 +73,7 @@ class WeatherControllerTest {
     void testGetWeatherInSelectedCities_Success(String url, WeatherApiResponse weatherApiResponseLondon, WeatherApiResponse weatherApiResponseYerevan) throws Exception {
         WeatherResponse mockedResponse = WeatherResponse.builder().responses(List.of(weatherApiResponseLondon, weatherApiResponseYerevan)).build();
 
-        when(weatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
+        when(openWeatherService.getWeather(any(OpenWeatherRequest.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
@@ -105,7 +106,7 @@ class WeatherControllerTest {
 
     @Test
     public void testGetWeatherInSelectedCities_ServiceApi() {
-        WeatherService weatherServiceMock = mock(WeatherService.class);
+        OpenWeatherService weatherServiceMock = mock(OpenWeatherService.class);
         WeatherController weatherController = new WeatherController(weatherServiceMock);
 
         List<String> testCities = Arrays.asList(YEREVAN, LONDON);

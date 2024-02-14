@@ -1,12 +1,12 @@
 package com.example.weatherwaveapi.service;
 
-import com.example.weatherwaveapi.model.request.WeatherRequest;
-import com.example.weatherwaveapi.model.response.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.WeatherForecastResponse;
-import com.example.weatherwaveapi.model.response.WeatherResponse;
+import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
+import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
 import com.example.weatherwaveapi.util.exception.InvalidZipCodeException;
-import com.example.weatherwaveapi.util.urlbuilder.OpenWeatherUrlBuilder;
+import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -29,7 +29,7 @@ import static org.springframework.http.HttpMethod.GET;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class WeatherService {
+public class OpenWeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
     private static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
     private static final String FORECAST_ERROR_MESSAGE = "Failed to retrieve forecast data";
@@ -37,11 +37,11 @@ public class WeatherService {
     private static final String EMPTY_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code cannot be null";
     private static final String INVALID_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code must be 5 digits long";
 
+
     private final RestTemplate restTemplate;
+    private final UrlBuilderForWeather urlBuilderForWeather;
 
-    private final OpenWeatherUrlBuilder urlBuilder;
-
-    public WeatherResponse getWeather(WeatherRequest request) {
+    public WeatherResponse getWeather(OpenWeatherRequest request) {
         List<WeatherApiResponse> weatherResponses = new ArrayList<>();
 
         if (!CollectionUtils.isEmpty(request.cities())) {
@@ -95,21 +95,21 @@ public class WeatherService {
     }
 
     private WeatherOpenApiContainer getWeatherBySelectedCity(String city) {
-        String url = urlBuilder.buildWeatherUrl(city);
+        String url = urlBuilderForWeather.buildWeatherUrl(city);
         return getWeatherOpenApiContainer(url, String.format(STRING_MESSAGE_FORMAT, city, WEATHER_ERROR_MESSAGE));
     }
 
     private WeatherOpenApiContainer getWeatherByZipCode(Integer zipcode, String country) {
         validateZipCode(zipcode);
         String url = Optional.ofNullable(country)
-                .map(c -> urlBuilder.buildWeatherUrlForZipcode(zipcode, c))
-                .orElse(urlBuilder.buildWeatherUrl(zipcode.toString()));
+                .map(c -> urlBuilderForWeather.buildOpenWeatherUrlForZipcode(zipcode, c))
+                .orElse(urlBuilderForWeather.buildWeatherUrl(zipcode.toString()));
 
         return getWeatherOpenApiContainer(url, String.format(STRING_MESSAGE_FORMAT, zipcode, WEATHER_ERROR_MESSAGE));
     }
 
     private WeatherOpenApiContainer getForecastContainerByCity(String city) {
-        String url = urlBuilder.buildForecastUrlForCity(city);
+        String url = urlBuilderForWeather.buildForecastUrlForCity(city);
         return getWeatherOpenApiContainer(url, String.format(STRING_MESSAGE_FORMAT, city, FORECAST_ERROR_MESSAGE));
     }
 
