@@ -1,8 +1,5 @@
 package com.example.weatherwaveapi.controller;
 
-import com.example.weatherwaveapi.model.request.WeatherRequest;
-import com.example.weatherwaveapi.model.response.WeatherResponse;
-import com.example.weatherwaveapi.service.WeatherService;
 import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
 import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
@@ -48,12 +45,12 @@ public class WeatherController {
     }
 
     private ResponseEntity<WeatherResponse> getWeatherResponse(List<String> cities, ServiceApiEnum serviceApi) {
-        WeatherRequest weatherRequest = WeatherRequest.builder()
+        OpenWeatherRequest weatherRequest = OpenWeatherRequest.builder()
                 .cities(cities)
                 .service(serviceApi)
                 .build();
         log.info(REQUEST_MESSAGE, weatherRequest.service());
-        WeatherResponse weatherResponse = weatherService.getWeather(weatherRequest);
+        WeatherResponse weatherResponse = openWeatherService.getWeather(weatherRequest);
         return ResponseEntity.ok(weatherResponse);
     }
 }

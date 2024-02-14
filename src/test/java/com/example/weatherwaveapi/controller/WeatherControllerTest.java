@@ -1,9 +1,6 @@
 package com.example.weatherwaveapi.controller;
 
-import com.example.weatherwaveapi.model.request.WeatherRequest;
-import com.example.weatherwaveapi.model.response.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.WeatherResponse;
-import com.example.weatherwaveapi.service.WeatherService;
+import com.example.util.WeatherApiUtil;
 import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
 import org.junit.jupiter.api.Test;
 import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
@@ -109,7 +106,7 @@ class WeatherControllerTest {
 
     @Test
     public void testGetWeatherInSelectedCities_ServiceApi() {
-        WeatherService weatherServiceMock = mock(WeatherService.class);
+        OpenWeatherService weatherServiceMock = mock(OpenWeatherService.class);
         WeatherController weatherController = new WeatherController(weatherServiceMock);
 
         List<String> testCities = Arrays.asList(YEREVAN, LONDON);
