@@ -7,7 +7,7 @@ import com.example.weatherwaveapi.model.response.yandexapi.YandexApiContainer;
 import com.example.weatherwaveapi.model.response.yandexapi.forecast.YandexForecastResponse;
 import com.example.weatherwaveapi.model.response.yandexapi.weather.YandexWeatherApiResponse;
 import com.example.weatherwaveapi.model.response.yandexapi.weather.YandexWeatherResponse;
-import com.example.weatherwaveapi.util.urlbuilder.OpenWeatherUrlBuilder;
+import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -34,13 +34,13 @@ public class YandexWeatherService {
 
     private final RestTemplate restTemplate;
     private final GeneralSettings settings;
-    private final OpenWeatherUrlBuilder urlBuilder;
+    private final UrlBuilderForWeather urlBuilderForWeather;
 
 
     public YandexWeatherResponse getWeather(YandexWeatherRequest request) {
         List<YandexWeatherApiResponse> weatherResponses = request.coordinates()
                 .stream()
-                .map(c -> getYandexApiContainer(urlBuilder.buildYandexWeatherUrlForCoord(c.lat(), c.lon()), String.format(STRING_MESSAGE_FORMAT, c, WEATHER_ERROR_MESSAGE)))
+                .map(c -> getYandexApiContainer(urlBuilderForWeather.buildYandexWeatherUrlForCoord(c.lat(), c.lon()), String.format(STRING_MESSAGE_FORMAT, c, WEATHER_ERROR_MESSAGE)))
                 .map(YandexApiContainer::convertContainerForWeather)
                 .toList();
 
@@ -51,12 +51,12 @@ public class YandexWeatherService {
     }
 
     public YandexForecastResponse getForecast(CoordinateWeatherRequest request) {
-        String url = urlBuilder.buildYandexWeatherUrlForCoord(request.lat(), request.lon());
+        String url = urlBuilderForWeather.buildYandexWeatherUrlForCoord(request.lat(), request.lon());
         return getYandexApiContainer(url, String.format(STRING_MESSAGE_FORMAT, request, FORECAST_ERROR_MESSAGE))
                 .convertContainerForForecast();
     }
 
-    public YandexApiContainer getYandexApiContainer(String url, String format) {
+    private YandexApiContainer getYandexApiContainer(String url, String format) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set(settings.getYandexApi().key(), settings.getYandexApi().value());
@@ -77,6 +77,5 @@ public class YandexWeatherService {
                     .build();
         }
     }
-
 
 }

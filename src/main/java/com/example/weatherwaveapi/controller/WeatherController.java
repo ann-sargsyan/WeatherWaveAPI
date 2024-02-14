@@ -7,7 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -18,7 +21,7 @@ import java.util.List;
 public class WeatherController {
     private static final String REQUEST_MESSAGE = "Request contain serviceApiEnumValue: {}";
 
-    private final OpenWeatherService weatherService;
+    private final OpenWeatherService openWeatherService;
 
     @GetMapping(value = "/city", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WeatherResponse> getWeatherInSelectedCity(@RequestParam String city) {
@@ -26,7 +29,7 @@ public class WeatherController {
                 .cities(List.of(city))
                 .build();
         log.info(REQUEST_MESSAGE, weatherRequest);
-        WeatherResponse weatherResponse = weatherService.getWeather(weatherRequest);
+        WeatherResponse weatherResponse = openWeatherService.getWeather(weatherRequest);
         return ResponseEntity.ok(weatherResponse);
     }
 
@@ -36,7 +39,7 @@ public class WeatherController {
                 .cities(cities)
                 .build();
         log.info(REQUEST_MESSAGE, weatherRequest);
-        WeatherResponse response = weatherService.getWeather(weatherRequest);
+        WeatherResponse response = openWeatherService.getWeather(weatherRequest);
         return ResponseEntity.ok(response);
     }
 }

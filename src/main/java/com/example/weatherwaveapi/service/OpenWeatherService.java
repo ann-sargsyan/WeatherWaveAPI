@@ -1,12 +1,12 @@
 package com.example.weatherwaveapi.service;
 
 import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
+import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
 import com.example.weatherwaveapi.util.exception.InvalidZipCodeException;
-import com.example.weatherwaveapi.util.urlbuilder.OpenWeatherUrlBuilder;
+import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -39,7 +39,7 @@ public class OpenWeatherService {
 
 
     private final RestTemplate restTemplate;
-    private final OpenWeatherUrlBuilder urlBuilder;
+    private final UrlBuilderForWeather urlBuilderForWeather;
 
     public WeatherResponse getWeather(OpenWeatherRequest request) {
         List<WeatherApiResponse> weatherResponses = new ArrayList<>();
@@ -49,9 +49,7 @@ public class OpenWeatherService {
                     .map(this::getWeatherBySelectedCity)
                     .map(this::convertContainer)
                     .collect(Collectors.toList());
-        }
-
-        else if (!CollectionUtils.isEmpty(request.zipcode())) {
+        } else if (!CollectionUtils.isEmpty(request.zipcode())) {
             weatherResponses = request.zipcode().stream()
                     .map(x -> getWeatherByZipCode(x.zipcode(), x.country()))
                     .map(this::convertContainer)
@@ -71,10 +69,10 @@ public class OpenWeatherService {
                         .errorMessage(error)
                         .build())
                 .orElseGet(() -> WeatherForecastResponse.builder()
-                    .forecastData(container.forecastContainer())
-                    .city(container.cityDetails().name())
-                    .country(container.cityDetails().country())
-                    .build());
+                        .forecastData(container.forecastContainer())
+                        .city(container.cityDetails().name())
+                        .country(container.cityDetails().country())
+                        .build());
     }
 
     private WeatherOpenApiContainer getWeatherOpenApiContainer(String url, String format) {
@@ -97,30 +95,30 @@ public class OpenWeatherService {
     }
 
     private WeatherOpenApiContainer getWeatherBySelectedCity(String city) {
-        String url = urlBuilder.buildWeatherUrl(city);
+        String url = urlBuilderForWeather.buildWeatherUrl(city);
         return getWeatherOpenApiContainer(url, String.format(STRING_MESSAGE_FORMAT, city, WEATHER_ERROR_MESSAGE));
     }
 
     private WeatherOpenApiContainer getWeatherByZipCode(Integer zipcode, String country) {
         validateZipCode(zipcode);
         String url = Optional.ofNullable(country)
-                .map(c -> urlBuilder.buildOpenWeatherUrlForZipcode(zipcode, c))
-                .orElse(urlBuilder.buildWeatherUrl(zipcode.toString()));
+                .map(c -> urlBuilderForWeather.buildOpenWeatherUrlForZipcode(zipcode, c))
+                .orElse(urlBuilderForWeather.buildWeatherUrl(zipcode.toString()));
 
         return getWeatherOpenApiContainer(url, String.format(STRING_MESSAGE_FORMAT, zipcode, WEATHER_ERROR_MESSAGE));
     }
 
     private WeatherOpenApiContainer getForecastContainerByCity(String city) {
-        String url = urlBuilder.buildForecastUrlForCity(city);
+        String url = urlBuilderForWeather.buildForecastUrlForCity(city);
         return getWeatherOpenApiContainer(url, String.format(STRING_MESSAGE_FORMAT, city, FORECAST_ERROR_MESSAGE));
     }
 
     private WeatherApiResponse convertContainer(WeatherOpenApiContainer container) {
         return Optional.ofNullable(container.errorMessage())
                 .map(error -> WeatherApiResponse.builder()
-                                .success(false)
-                                .errorMessage(error)
-                                .build())
+                        .success(false)
+                        .errorMessage(error)
+                        .build())
                 .orElseGet(() ->
                         WeatherApiResponse.builder()
                                 .temperature(container.weatherMetrics().temp())
@@ -131,7 +129,7 @@ public class OpenWeatherService {
 
     }
 
-    private void validateZipCode(Integer zipcode){
+    private void validateZipCode(Integer zipcode) {
         if (zipcode == null) {
             throw new InvalidZipCodeException(EMPTY_ZIPCODE_EXCEPTION_MESSAGE);
         }
