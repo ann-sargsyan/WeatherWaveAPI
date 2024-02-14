@@ -37,8 +37,8 @@ public class WeatherService {
     private static final String EMPTY_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code cannot be null";
     private static final String INVALID_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code must be 5 digits long";
 
-
     private final RestTemplate restTemplate;
+
     private final OpenWeatherUrlBuilder urlBuilder;
 
     public WeatherResponse getWeather(WeatherRequest request) {
@@ -49,9 +49,7 @@ public class WeatherService {
                     .map(this::getWeatherBySelectedCity)
                     .map(this::convertContainer)
                     .collect(Collectors.toList());
-        }
-
-        else if (!CollectionUtils.isEmpty(request.zipcode())) {
+        } else if (!CollectionUtils.isEmpty(request.zipcode())) {
             weatherResponses = request.zipcode().stream()
                     .map(x -> getWeatherByZipCode(x.zipcode(), x.country()))
                     .map(this::convertContainer)
@@ -71,10 +69,10 @@ public class WeatherService {
                         .errorMessage(error)
                         .build())
                 .orElseGet(() -> WeatherForecastResponse.builder()
-                    .forecastData(container.forecastContainer())
-                    .city(container.cityDetails().name())
-                    .country(container.cityDetails().country())
-                    .build());
+                        .forecastData(container.forecastContainer())
+                        .city(container.cityDetails().name())
+                        .country(container.cityDetails().country())
+                        .build());
     }
 
     private WeatherOpenApiContainer getWeatherOpenApiContainer(String url, String format) {
@@ -118,9 +116,9 @@ public class WeatherService {
     private WeatherApiResponse convertContainer(WeatherOpenApiContainer container) {
         return Optional.ofNullable(container.errorMessage())
                 .map(error -> WeatherApiResponse.builder()
-                                .success(false)
-                                .errorMessage(error)
-                                .build())
+                        .success(false)
+                        .errorMessage(error)
+                        .build())
                 .orElseGet(() ->
                         WeatherApiResponse.builder()
                                 .temperature(container.weatherMetrics().temp())
@@ -131,7 +129,7 @@ public class WeatherService {
 
     }
 
-    private void validateZipCode(Integer zipcode){
+    private void validateZipCode(Integer zipcode) {
         if (zipcode == null) {
             throw new InvalidZipCodeException(EMPTY_ZIPCODE_EXCEPTION_MESSAGE);
         }
@@ -139,5 +137,4 @@ public class WeatherService {
             throw new InvalidZipCodeException(INVALID_ZIPCODE_EXCEPTION_MESSAGE);
         }
     }
-
 }

@@ -3,28 +3,23 @@ package com.example.weatherwaveapi.service;
 import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.config.OpenWeatherApi;
 import com.example.weatherwaveapi.model.request.WeatherRequest;
-import com.example.weatherwaveapi.model.request.ZipCodeWeatherRequest;
 import com.example.weatherwaveapi.model.response.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.WeatherForecastResponse;
 import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
-import com.example.weatherwaveapi.model.response.weatherapi.forecast.City;
-import com.example.weatherwaveapi.model.response.weatherapi.forecast.ForecastDataContainer;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.SunActivityInfo;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.Weather;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherMetrics;
-import com.example.weatherwaveapi.util.urlbuilder.OpenWeatherUrlBuilder;
+import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.weatherwaveapi.util.urlbuilder.OpenWeatherUrlBuilder;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
@@ -36,7 +31,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.example.util.WeatherApiUtil.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -53,17 +47,16 @@ class WeatherServiceTest {
     private static final String GET = "GET";
     private WeatherService weatherService;
     private MockWebServer mockWebServer;
-    private GeneralSettings generalSettings;
-    private OpenWeatherUrlBuilder urlBuilder;
+    private OpenWeatherUrlBuilder openWeatherUrlBuilder;
 
     @BeforeEach
     void setup() throws IOException {
         mockWebServer = new MockWebServer();
-        generalSettings = new GeneralSettings();
-        urlBuilder = new OpenWeatherUrlBuilder(generalSettings);
+        GeneralSettings generalSettings = new GeneralSettings();
+        openWeatherUrlBuilder = new OpenWeatherUrlBuilder(generalSettings);
         OpenWeatherApi openWeatherApi = new OpenWeatherApi(SKIP, LOCALHOST + mockWebServer.getPort(), SKIP);
         generalSettings.setOpenWeatherApi(openWeatherApi);
-        weatherService = new WeatherService(new RestTemplate(), urlBuilder);
+        weatherService = new WeatherService(new RestTemplate(), openWeatherUrlBuilder);
         String url = String.format(LOCALHOST + PLACEHOLDER, mockWebServer.getPort());
         mockWebServer.url(url + "/weather");
         mockWebServer.enqueue(
@@ -73,12 +66,12 @@ class WeatherServiceTest {
                         .setBody(createBody()));
     }
 
-    @ParameterizedTest
-    @MethodSource("parameters")
-    void testGetWeatherByCities(WeatherRequest weatherRequest) {
+    @Test
+    void testGetWeather() {
         RestTemplate restTemplate = mock(RestTemplate.class);
-        WeatherService weatherService = new WeatherService(restTemplate, urlBuilder);
-
+        WeatherService weatherService = new WeatherService(restTemplate, openWeatherUrlBuilder);
+        List<String> cities = Arrays.asList(YEREVAN);
+        WeatherRequest weatherRequest = new WeatherRequest(cities, ServiceApiEnum.OPEN_WEATHER_MAP, null);
         WeatherOpenApiContainer weatherOpenApiContainer = WeatherOpenApiContainer
                 .builder()
                 .weatherMetrics(WeatherMetrics.builder()
@@ -110,60 +103,15 @@ class WeatherServiceTest {
                 .returns(YEREVAN_CLOUDS, WeatherApiResponse::weatherDescription);
     }
 
-    private static Stream<Arguments> parameters() {
-        return Stream.of(
-                Arguments.of(WeatherRequest.builder()
-                        .cities(List.of(LONDON))
-                        .build()),
-                Arguments.of(WeatherRequest.builder()
-                        .zipcode(List.of(ZipCodeWeatherRequest.builder()
-                                .zipcode(ZIPCODE)
-                                .country(COUNTRY_USA)
-                                .build()))
-                        .build())
-        );
-    }
-
     @Test
     void testGetWeather_Failure() {
         WeatherService mockedWeatherService = Mockito.mock(WeatherService.class);
         List<String> cities = Arrays.asList(LONDON, YEREVAN);
-        WeatherRequest request = WeatherRequest.builder()
-                .cities(cities)
-                .build();
+        WeatherRequest request = new WeatherRequest(cities, ServiceApiEnum.OPEN_WEATHER_MAP, null);
 
         when(mockedWeatherService.getWeather(any(WeatherRequest.class))).thenThrow(new RuntimeException("Test exception"));
 
         assertThrows(RuntimeException.class, () -> mockedWeatherService.getWeather(request));
-    }
-
-    @Test
-    void testGetForecast() {
-        RestTemplate restTemplate = mock(RestTemplate.class);
-        WeatherService weatherService = new WeatherService(restTemplate, urlBuilder);
-
-        WeatherOpenApiContainer mockContainerForForecast = WeatherOpenApiContainer.builder()
-                .cityDetails(City.builder()
-                        .name(LONDON)
-                        .country(COUNTRY_OF_LONDON).build())
-                .forecastData(List.of(ForecastDataContainer.builder()
-                        .date(DATE)
-                        .weatherMetrics(WeatherMetrics.builder().temp(LONDON_TEMPERATURE).build())
-                        .weather(List.of(Weather.builder().description(LONDON_CLOUDS).build()))
-                        .build()))
-                .build();
-
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), any(ParameterizedTypeReference.class)))
-                .thenReturn(ResponseEntity.ok(mockContainerForForecast));
-
-
-        WeatherForecastResponse forecastResponse = weatherService.getForecast(LONDON);
-
-        assertAll(
-                () -> assertEquals(mockContainerForForecast.forecastContainer(), forecastResponse.forecastData()),
-                () -> assertEquals(mockContainerForForecast.cityDetails().name(), forecastResponse.city()),
-                () -> assertEquals(mockContainerForForecast.cityDetails().country(), forecastResponse.country())
-        );
     }
 
     private WeatherOpenApiContainer createMockContainer() {
