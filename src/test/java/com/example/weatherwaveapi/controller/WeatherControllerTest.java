@@ -10,14 +10,18 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static com.example.util.WeatherApiUtil.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -96,6 +100,23 @@ class WeatherControllerTest {
                         .weatherDescription(YEREVAN_CLOUDS)
                         .build())
         );
+    }
+
+    @Test
+    public void testGetWeatherInSelectedCities_ServiceApi() {
+        WeatherService weatherServiceMock = mock(WeatherService.class);
+        WeatherController weatherController = new WeatherController(weatherServiceMock);
+
+        List<String> testCities = Arrays.asList(YEREVAN, LONDON);
+        ServiceApiEnum testServiceApi = ServiceApiEnum.OPEN_WEATHER_MAP;
+
+        ResponseEntity<WeatherResponse> responseEntity = weatherController.getWeatherInSelectedCities(testCities, testServiceApi);
+
+        verify(weatherServiceMock).getWeather(argThat(weatherRequest ->
+                weatherRequest.cities().equals(testCities) && weatherRequest.service() == testServiceApi));
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
     }
+
 }
