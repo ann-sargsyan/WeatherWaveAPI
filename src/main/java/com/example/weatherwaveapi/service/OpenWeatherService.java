@@ -1,11 +1,11 @@
 package com.example.weatherwaveapi.service;
 
 import com.example.weatherwaveapi.model.request.WeatherRequest;
-import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.OpenWeatherResponse;
+import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.util.exception.InvalidZipCodeException;
 import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import lombok.RequiredArgsConstructor;

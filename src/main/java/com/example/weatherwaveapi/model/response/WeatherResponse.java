@@ -1,4 +1,4 @@
-package com.example.weatherwaveapi.model.response.weatherapi.weather;
+package com.example.weatherwaveapi.model.response;
 
 import com.example.weatherwaveapi.model.response.weatherapi.weather.OpenWeatherResponse;
 import com.example.weatherwaveapi.model.response.yandexapi.weather.YandexWeatherResponse;

@@ -7,7 +7,6 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record WeatherApiResponse(
-        Boolean success,
         String errorMessage,
         String city,
         String country,
