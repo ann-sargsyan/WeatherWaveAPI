@@ -1,21 +1,25 @@
 package com.example.weatherwaveapi.service;
 
-import com.example.weatherwaveapi.model.request.WeatherRequest;
+import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
+import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
-public class WeatherRouterService {
-    private final WeatherService weatherService;
-    private final YandexWeatherService yandexWeatherService;
+public final class WeatherRouterService {
 
-    public void getWeatherBySelectedService(WeatherRequest weatherRequest){
-        ServiceApiEnum serviceType = weatherRequest.service();
-        switch (serviceType){
-            case OPEN_WEATHER_MAP -> weatherService.getWeather(weatherRequest);
-            case YANDEX -> yandexWeatherService.getWeather(weatherRequest);
-        }
+    private final UrlBuilderForWeather urlBuilderForWeather;
+    private final GeneralSettings generalSettings;
+    private final RestTemplate restTemplate;
+
+    public WeatherService getWeatherBySelectedService(ServiceApiEnum service) {
+        return switch (service) {
+            case OPEN_WEATHER_MAP -> new OpenWeatherService(restTemplate, urlBuilderForWeather);
+            case YANDEX -> new YandexWeatherService(restTemplate, generalSettings, urlBuilderForWeather);
+            default -> null;
+        };
     }
 }

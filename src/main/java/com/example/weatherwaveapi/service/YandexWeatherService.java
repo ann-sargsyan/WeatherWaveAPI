@@ -2,7 +2,8 @@ package com.example.weatherwaveapi.service;
 
 import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.model.request.CoordinateWeatherRequest;
-import com.example.weatherwaveapi.model.request.YandexWeatherRequest;
+import com.example.weatherwaveapi.model.request.WeatherRequest;
+import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.model.response.yandexapi.YandexApiContainer;
 import com.example.weatherwaveapi.model.response.yandexapi.forecast.YandexForecastResponse;
 import com.example.weatherwaveapi.model.response.yandexapi.weather.YandexWeatherApiResponse;
@@ -26,7 +27,7 @@ import static org.springframework.http.HttpMethod.GET;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class YandexWeatherService {
+public class YandexWeatherService implements WeatherService{
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
     private static final String STRING_MESSAGE_FORMAT = "Invalid coordinates: %s. %s";
     private static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
@@ -37,16 +38,17 @@ public class YandexWeatherService {
     private final UrlBuilderForWeather urlBuilderForWeather;
 
 
-    public YandexWeatherResponse getWeather(YandexWeatherRequest request) {
+    public WeatherResponse getWeather(WeatherRequest request) {
         List<YandexWeatherApiResponse> weatherResponses = request.coordinates()
                 .stream()
                 .map(c -> getYandexApiContainer(urlBuilderForWeather.buildYandexWeatherUrlForCoord(c.lat(), c.lon()), String.format(STRING_MESSAGE_FORMAT, c, WEATHER_ERROR_MESSAGE)))
                 .map(YandexApiContainer::convertContainerForWeather)
                 .toList();
 
-        return YandexWeatherResponse.builder()
+        YandexWeatherResponse yandexWeatherResponse = YandexWeatherResponse.builder()
                 .responses(weatherResponses)
                 .build();
+        return WeatherResponse.builder().yandexWeatherResponse(yandexWeatherResponse).build();
 
     }
 

@@ -6,7 +6,9 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record YandexWeatherRequest(
+public record WeatherRequest(
+        List<String> cities,
+        List<ZipCodeWeatherRequest> zipcode,
         List<CoordinateWeatherRequest> coordinates,
         ServiceApiEnum service
 ) {

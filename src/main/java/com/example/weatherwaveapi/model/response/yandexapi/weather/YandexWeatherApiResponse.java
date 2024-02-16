@@ -6,7 +6,6 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record YandexWeatherApiResponse(
-        Boolean success,
         String errorMessage,
         Double latitude,
         Double longitude,
