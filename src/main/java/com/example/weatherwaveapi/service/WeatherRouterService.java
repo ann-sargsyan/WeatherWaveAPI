@@ -7,16 +7,15 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class WeatherRouterService {
-    private static final String NOT_SUPPORTED_MESSAGE = "Not supported service";
     private final OpenWeatherService openWeatherService;
     private final YandexWeatherService yandexWeatherService;
 
 
-    public WeatherService getWeatherBySelectedService(ServiceApiEnum service) {
+    public WeatherService getWeatherService(ServiceApiEnum service) {
         return switch (service) {
             case OPEN_WEATHER_MAP -> openWeatherService;
             case YANDEX -> yandexWeatherService;
-            default -> throw new IllegalArgumentException(NOT_SUPPORTED_MESSAGE);
+            default -> throw new IllegalArgumentException(String.format("Not supported service %s", service));
         };
     }
 }

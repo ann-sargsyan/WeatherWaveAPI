@@ -20,14 +20,17 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpMethod.GET;
 
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class YandexWeatherService implements WeatherService{
+public class YandexWeatherService implements WeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
     private static final String STRING_MESSAGE_FORMAT = "Invalid coordinates: %s. %s";
     private static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
@@ -39,7 +42,7 @@ public class YandexWeatherService implements WeatherService{
 
 
     public WeatherResponse getWeather(WeatherRequest request) {
-        List<YandexWeatherApiResponse> weatherResponses = request.coordinates()
+        List<YandexWeatherApiResponse> weatherResponses = convertCoordinatesRequest(request.coordinates())
                 .stream()
                 .map(c -> getYandexApiContainer(urlBuilderForWeather.buildYandexWeatherUrlForCoord(c.lat(), c.lon()), String.format(STRING_MESSAGE_FORMAT, c, WEATHER_ERROR_MESSAGE)))
                 .map(YandexApiContainer::convertContainerForWeather)
@@ -80,4 +83,22 @@ public class YandexWeatherService implements WeatherService{
         }
     }
 
+    private List<CoordinateWeatherRequest> convertCoordinatesRequest(List<String> coordinates) {
+        return Optional.ofNullable(coordinates)
+                .map(this::coordinateBuilder)
+                .orElse(new ArrayList<>());
+    }
+
+    private List<CoordinateWeatherRequest> coordinateBuilder(List<String> coordinates) {
+        return coordinates.stream()
+                .map(coordinate -> coordinate.split(":"))
+                .filter(splitCoordinate -> splitCoordinate.length == 2)
+                .map(splitCoordinate ->
+                        CoordinateWeatherRequest.builder()
+                                .lat(Double.parseDouble(splitCoordinate[0]))
+                                .lon(Double.parseDouble(splitCoordinate[1]))
+                                .build()
+                )
+                .collect(Collectors.toList());
+    }
 }

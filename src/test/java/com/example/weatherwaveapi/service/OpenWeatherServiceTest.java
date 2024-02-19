@@ -3,7 +3,6 @@ package com.example.weatherwaveapi.service;
 import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.config.OpenWeatherApi;
 import com.example.weatherwaveapi.model.request.WeatherRequest;
-import com.example.weatherwaveapi.model.request.ZipCodeWeatherRequest;
 import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
@@ -53,10 +52,7 @@ class OpenWeatherServiceTest {
                         .cities(List.of(LONDON))
                         .build()),
                 Arguments.of(WeatherRequest.builder()
-                        .zipcode(List.of(ZipCodeWeatherRequest.builder()
-                                .zipcode(ZIPCODE)
-                                .country(COUNTRY_USA)
-                                .build()))
+                        .zipcode(List.of(ZIPCODE, COUNTRY_USA))
                         .build())
         );
     }

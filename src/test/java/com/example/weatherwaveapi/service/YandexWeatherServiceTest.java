@@ -55,7 +55,7 @@ public class YandexWeatherServiceTest {
 
     @Test
     void testGetWeather() {
-        WeatherRequest weatherRequest = WeatherRequest.builder().coordinates(List.of(new CoordinateWeatherRequest(MOSCOW_LAT, MOSCOW_LON))).build();
+        WeatherRequest weatherRequest = WeatherRequest.builder().coordinates(List.of(MOSCOW_LAT_LON)).build();
         YandexApiContainer mockContainerForWeather = getContainerForYandexWeather();
 
         when(generalSettings.getYandexApi()).thenReturn(yandexApi);
@@ -80,7 +80,7 @@ public class YandexWeatherServiceTest {
     @Test
     void testGetWeatherErrorMessage() {
         YandexWeatherRequest yandexWeatherRequest = new YandexWeatherRequest(List.of(new CoordinateWeatherRequest(MOSCOW_LAT, MOSCOW_LON)), ServiceApiEnum.YANDEX);
-        WeatherRequest weatherRequest = WeatherRequest.builder().coordinates(List.of(new CoordinateWeatherRequest(MOSCOW_LAT, MOSCOW_LON))).build();
+        WeatherRequest weatherRequest = WeatherRequest.builder().coordinates(List.of(MOSCOW_LAT_LON)).build();
         YandexApiContainer mockContainerForWeather = getErrorContainerForYandexWeather(yandexWeatherRequest);
 
         when(generalSettings.getYandexApi()).thenReturn(yandexApi);

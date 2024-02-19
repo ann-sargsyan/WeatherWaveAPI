@@ -1,6 +1,7 @@
 package com.example.weatherwaveapi.service;
 
 import com.example.weatherwaveapi.model.request.WeatherRequest;
+import com.example.weatherwaveapi.model.request.ZipCodeWeatherRequest;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
@@ -24,13 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.springframework.http.HttpMethod.GET;
 
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class OpenWeatherService implements WeatherService{
+public class OpenWeatherService implements WeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
     private static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
     private static final String FORECAST_ERROR_MESSAGE = "Failed to retrieve forecast data";
@@ -38,20 +40,20 @@ public class OpenWeatherService implements WeatherService{
     private static final String EMPTY_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code cannot be null";
     private static final String INVALID_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code must be 5 digits long";
 
-
     private final RestTemplate restTemplate;
+
     private final UrlBuilderForWeather urlBuilderForWeather;
 
     public WeatherResponse getWeather(WeatherRequest request) {
+        List<ZipCodeWeatherRequest> zipCodeWeatherRequests = convertZipCodeRequest(request.zipcode());
         List<WeatherApiResponse> weatherResponses = new ArrayList<>();
-
         if (!CollectionUtils.isEmpty(request.cities())) {
             weatherResponses = request.cities().stream()
                     .map(this::getWeatherBySelectedCity)
                     .map(this::convertContainer)
                     .collect(Collectors.toList());
-        } else if (!CollectionUtils.isEmpty(request.zipcode())) {
-            weatherResponses = request.zipcode().stream()
+        } else if (!CollectionUtils.isEmpty(zipCodeWeatherRequests)) {
+            weatherResponses = zipCodeWeatherRequests.stream()
                     .map(x -> getWeatherByZipCode(x.zipcode(), x.country()))
                     .map(this::convertContainer)
                     .collect(Collectors.toList());
@@ -136,5 +138,22 @@ public class OpenWeatherService implements WeatherService{
         if (String.valueOf(zipcode).length() != 5) {
             throw new InvalidZipCodeException(INVALID_ZIPCODE_EXCEPTION_MESSAGE);
         }
+    }
+
+    private List<ZipCodeWeatherRequest> convertZipCodeRequest(List<String> zipCodes) {
+        return Optional.ofNullable(zipCodes)
+                .map(this::zipCodeBuilder)
+                .orElse(new ArrayList<>());
+    }
+
+    private List<ZipCodeWeatherRequest> zipCodeBuilder(List<String> zipCodes) {
+        return IntStream.range(0, zipCodes.size() / 2)
+                .mapToObj(i ->
+                        ZipCodeWeatherRequest.builder()
+                                .zipcode(Integer.valueOf(zipCodes.get(i * 2)))
+                                .country(zipCodes.get(i * 2 + 1))
+                                .build()
+                )
+                .collect(Collectors.toList());
     }
 }

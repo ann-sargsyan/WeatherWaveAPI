@@ -56,7 +56,7 @@ class WeatherControllerTest {
         OpenWeatherResponse openWeatherResponse = OpenWeatherResponse.builder().responses(List.of(weatherApiResponse)).build();
         WeatherResponse mockedResponse = WeatherResponse.builder().openWeatherResponse(openWeatherResponse).build();
 
-        when(weatherRouterService.getWeatherBySelectedService(OPEN_WEATHER_MAP)).thenReturn(openWeatherService);
+        when(weatherRouterService.getWeatherService(OPEN_WEATHER_MAP)).thenReturn(openWeatherService);
         when(openWeatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(get(url))
@@ -85,7 +85,7 @@ class WeatherControllerTest {
         OpenWeatherResponse openWeatherResponse = OpenWeatherResponse.builder().responses(List.of(weatherApiResponseLondon, weatherApiResponseYerevan)).build();
         WeatherResponse mockedResponse = WeatherResponse.builder().openWeatherResponse(openWeatherResponse).build();
 
-        when(weatherRouterService.getWeatherBySelectedService(OPEN_WEATHER_MAP)).thenReturn(openWeatherService);
+        when(weatherRouterService.getWeatherService(OPEN_WEATHER_MAP)).thenReturn(openWeatherService);
         when(openWeatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(get(url))
@@ -123,7 +123,7 @@ class WeatherControllerTest {
         OpenWeatherResponse openWeatherResponse = OpenWeatherResponse.builder().responses(List.of(weatherApiResponse)).build();
         WeatherResponse mockedResponse = WeatherResponse.builder().openWeatherResponse(openWeatherResponse).build();
 
-        when(weatherRouterService.getWeatherBySelectedService(OPEN_WEATHER_MAP)).thenReturn(openWeatherService);
+        when(weatherRouterService.getWeatherService(OPEN_WEATHER_MAP)).thenReturn(openWeatherService);
         when(openWeatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(get(url))
@@ -151,7 +151,7 @@ class WeatherControllerTest {
         YandexWeatherResponse yandexWeatherResponse = YandexWeatherResponse.builder().responses(List.of(yandexWeatherApiResponse)).build();
         WeatherResponse mockedResponse = WeatherResponse.builder().yandexWeatherResponse(yandexWeatherResponse).build();
 
-        when(weatherRouterService.getWeatherBySelectedService(YANDEX)).thenReturn(yandexWeatherService);
+        when(weatherRouterService.getWeatherService(YANDEX)).thenReturn(yandexWeatherService);
         when(yandexWeatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(get(url))
