@@ -1,10 +1,11 @@
 package com.example.weatherwaveapi.service;
 
-import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
+import com.example.weatherwaveapi.model.request.WeatherRequest;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.OpenWeatherResponse;
+import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.util.exception.InvalidZipCodeException;
 import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ import static org.springframework.http.HttpMethod.GET;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class OpenWeatherService {
+public class OpenWeatherService implements WeatherService{
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
     private static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
     private static final String FORECAST_ERROR_MESSAGE = "Failed to retrieve forecast data";
@@ -41,7 +42,7 @@ public class OpenWeatherService {
     private final RestTemplate restTemplate;
     private final UrlBuilderForWeather urlBuilderForWeather;
 
-    public WeatherResponse getWeather(OpenWeatherRequest request) {
+    public WeatherResponse getWeather(WeatherRequest request) {
         List<WeatherApiResponse> weatherResponses = new ArrayList<>();
 
         if (!CollectionUtils.isEmpty(request.cities())) {
@@ -55,10 +56,10 @@ public class OpenWeatherService {
                     .map(this::convertContainer)
                     .collect(Collectors.toList());
         }
-
-        return WeatherResponse.builder()
+        OpenWeatherResponse openWeatherResponse = OpenWeatherResponse.builder()
                 .responses(weatherResponses)
                 .build();
+        return WeatherResponse.builder().openWeatherResponse(openWeatherResponse).build();
     }
 
     public WeatherForecastResponse getForecast(String city) {
@@ -116,7 +117,6 @@ public class OpenWeatherService {
     private WeatherApiResponse convertContainer(WeatherOpenApiContainer container) {
         return Optional.ofNullable(container.errorMessage())
                 .map(error -> WeatherApiResponse.builder()
-                        .success(false)
                         .errorMessage(error)
                         .build())
                 .orElseGet(() ->

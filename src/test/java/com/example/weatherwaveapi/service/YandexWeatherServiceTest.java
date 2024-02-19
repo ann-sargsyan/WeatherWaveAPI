@@ -3,11 +3,13 @@ package com.example.weatherwaveapi.service;
 import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.config.YandexApi;
 import com.example.weatherwaveapi.model.request.CoordinateWeatherRequest;
+import com.example.weatherwaveapi.model.request.WeatherRequest;
 import com.example.weatherwaveapi.model.request.YandexWeatherRequest;
+import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.model.response.yandexapi.YandexApiContainer;
 import com.example.weatherwaveapi.model.response.yandexapi.forecast.YandexForecastResponse;
 import com.example.weatherwaveapi.model.response.yandexapi.weather.YandexWeatherApiResponse;
-import com.example.weatherwaveapi.model.response.yandexapi.weather.YandexWeatherResponse;
+import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
 import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -53,16 +55,16 @@ public class YandexWeatherServiceTest {
 
     @Test
     void testGetWeather() {
-        YandexWeatherRequest request = new YandexWeatherRequest(List.of(new CoordinateWeatherRequest(MOSCOW_LAT, MOSCOW_LON)));
+        WeatherRequest weatherRequest = WeatherRequest.builder().coordinates(List.of(new CoordinateWeatherRequest(MOSCOW_LAT, MOSCOW_LON))).build();
         YandexApiContainer mockContainerForWeather = getContainerForYandexWeather();
 
         when(generalSettings.getYandexApi()).thenReturn(yandexApi);
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(mockContainerForWeather));
 
-        YandexWeatherResponse actualResponse = yandexService.getWeather(request);
+        WeatherResponse actualResponse = yandexService.getWeather(weatherRequest);
 
-        assertThat(actualResponse.responses())
+        assertThat(actualResponse.yandexWeatherResponse().responses())
                 .isNotNull()
                 .asInstanceOf(InstanceOfAssertFactories.list(YandexWeatherApiResponse.class))
                 .hasSize(1)
@@ -77,22 +79,22 @@ public class YandexWeatherServiceTest {
 
     @Test
     void testGetWeatherErrorMessage() {
-        YandexWeatherRequest request = new YandexWeatherRequest(List.of(new CoordinateWeatherRequest(MOSCOW_LAT, MOSCOW_LON)));
-        YandexApiContainer mockContainerForWeather = getErrorContainerForYandexWeather(request);
+        YandexWeatherRequest yandexWeatherRequest = new YandexWeatherRequest(List.of(new CoordinateWeatherRequest(MOSCOW_LAT, MOSCOW_LON)), ServiceApiEnum.YANDEX);
+        WeatherRequest weatherRequest = WeatherRequest.builder().coordinates(List.of(new CoordinateWeatherRequest(MOSCOW_LAT, MOSCOW_LON))).build();
+        YandexApiContainer mockContainerForWeather = getErrorContainerForYandexWeather(yandexWeatherRequest);
 
         when(generalSettings.getYandexApi()).thenReturn(yandexApi);
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(mockContainerForWeather));
 
 
-        YandexWeatherResponse actualResponse = yandexService.getWeather(request);
+        WeatherResponse actualResponse = yandexService.getWeather(weatherRequest);
 
-        assertThat(actualResponse.responses())
+        assertThat(actualResponse.yandexWeatherResponse().responses())
                 .isNotNull()
                 .asInstanceOf(InstanceOfAssertFactories.list(YandexWeatherApiResponse.class))
                 .hasSize(1)
                 .first()
-                .returns(false, YandexWeatherApiResponse::success)
                 .returns(mockContainerForWeather.errorMessage(), YandexWeatherApiResponse::errorMessage);
 
     }
