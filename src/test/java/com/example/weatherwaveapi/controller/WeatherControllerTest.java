@@ -62,10 +62,10 @@ class WeatherControllerTest {
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpectAll(
-                        jsonPath("$.openWeatherResponse.responses[0].city").value(weatherApiResponse.city()),
-                        jsonPath("$.openWeatherResponse.responses[0].country").value(weatherApiResponse.country()),
-                        jsonPath("$.openWeatherResponse.responses[0].temperature").value(weatherApiResponse.temperature()),
-                        jsonPath("$.openWeatherResponse.responses[0].weatherDescription").value(weatherApiResponse.weatherDescription()));
+                        jsonPath("$.openWeatherResponse.responses[0].city").value(weatherApiResponse.getCity()),
+                        jsonPath("$.openWeatherResponse.responses[0].country").value(weatherApiResponse.getCountry()),
+                        jsonPath("$.openWeatherResponse.responses[0].temperature").value(weatherApiResponse.getTemperature()),
+                        jsonPath("$.openWeatherResponse.responses[0].weatherDescription").value(weatherApiResponse.getWeatherDescription()));
     }
 
     private static Stream<Arguments> parameters() {
@@ -91,14 +91,14 @@ class WeatherControllerTest {
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpectAll(
-                        jsonPath("$.openWeatherResponse.responses[0].city").value(weatherApiResponseLondon.city()),
-                        jsonPath("$.openWeatherResponse.responses[0].country").value(weatherApiResponseLondon.country()),
-                        jsonPath("$.openWeatherResponse.responses[0].temperature").value(weatherApiResponseLondon.temperature()),
-                        jsonPath("$.openWeatherResponse.responses[0].weatherDescription").value(weatherApiResponseLondon.weatherDescription()),
-                        jsonPath("$.openWeatherResponse.responses[1].city").value(weatherApiResponseYerevan.city()),
-                        jsonPath("$.openWeatherResponse.responses[1].country").value(weatherApiResponseYerevan.country()),
-                        jsonPath("$.openWeatherResponse.responses[1].temperature").value(weatherApiResponseYerevan.temperature()),
-                        jsonPath("$.openWeatherResponse.responses[1].weatherDescription").value(weatherApiResponseYerevan.weatherDescription()));
+                        jsonPath("$.openWeatherResponse.responses[0].city").value(weatherApiResponseLondon.getCity()),
+                        jsonPath("$.openWeatherResponse.responses[0].country").value(weatherApiResponseLondon.getCountry()),
+                        jsonPath("$.openWeatherResponse.responses[0].temperature").value(weatherApiResponseLondon.getTemperature()),
+                        jsonPath("$.openWeatherResponse.responses[0].weatherDescription").value(weatherApiResponseLondon.getWeatherDescription()),
+                        jsonPath("$.openWeatherResponse.responses[1].city").value(weatherApiResponseYerevan.getCity()),
+                        jsonPath("$.openWeatherResponse.responses[1].country").value(weatherApiResponseYerevan.getCountry()),
+                        jsonPath("$.openWeatherResponse.responses[1].temperature").value(weatherApiResponseYerevan.getTemperature()),
+                        jsonPath("$.openWeatherResponse.responses[1].weatherDescription").value(weatherApiResponseYerevan.getWeatherDescription()));
     }
 
     private static Stream<Arguments> cities_parameters() {
@@ -129,10 +129,10 @@ class WeatherControllerTest {
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpectAll(
-                        jsonPath("$.openWeatherResponse.responses[0].city").value(weatherApiResponse.city()),
-                        jsonPath("$.openWeatherResponse.responses[0].country").value(weatherApiResponse.country()),
-                        jsonPath("$.openWeatherResponse.responses[0].temperature").value(weatherApiResponse.temperature()),
-                        jsonPath("$.openWeatherResponse.responses[0].weatherDescription").value(weatherApiResponse.weatherDescription()));
+                        jsonPath("$.openWeatherResponse.responses[0].city").value(weatherApiResponse.getCity()),
+                        jsonPath("$.openWeatherResponse.responses[0].country").value(weatherApiResponse.getCountry()),
+                        jsonPath("$.openWeatherResponse.responses[0].temperature").value(weatherApiResponse.getTemperature()),
+                        jsonPath("$.openWeatherResponse.responses[0].weatherDescription").value(weatherApiResponse.getWeatherDescription()));
     }
 
     private static Stream<Arguments> parameters_for_zipCode() {
@@ -157,11 +157,11 @@ class WeatherControllerTest {
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpectAll(
-                        jsonPath("$.yandexWeatherResponse.responses[0].latitude").value(yandexWeatherApiResponse.latitude()),
-                        jsonPath("$.yandexWeatherResponse.responses[0].longitude").value(yandexWeatherApiResponse.longitude()),
-                        jsonPath("$.yandexWeatherResponse.responses[0].temperature").value(yandexWeatherApiResponse.temperature()),
-                        jsonPath("$.yandexWeatherResponse.responses[0].condition").value(yandexWeatherApiResponse.condition()),
-                        jsonPath("$.yandexWeatherResponse.responses[0].date").value(yandexWeatherApiResponse.date()));
+                        jsonPath("$.yandexWeatherResponse.responses[0].latitude").value(yandexWeatherApiResponse.getLatitude()),
+                        jsonPath("$.yandexWeatherResponse.responses[0].longitude").value(yandexWeatherApiResponse.getLongitude()),
+                        jsonPath("$.yandexWeatherResponse.responses[0].temperature").value(yandexWeatherApiResponse.getTemperature()),
+                        jsonPath("$.yandexWeatherResponse.responses[0].condition").value(yandexWeatherApiResponse.getCondition()),
+                        jsonPath("$.yandexWeatherResponse.responses[0].date").value(yandexWeatherApiResponse.getDate()));
     }
 
     private static Stream<Arguments> parameters_for_yandex() {

@@ -21,9 +21,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpMethod.GET;
 
@@ -78,27 +77,49 @@ public class YandexWeatherService implements WeatherService {
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(EXCEPTION_MESSAGE, e.getMessage());
             return YandexApiContainer.builder()
+                    .success(false)
                     .errorMessage(format)
                     .build();
         }
     }
 
     private List<CoordinateWeatherRequest> convertCoordinatesRequest(List<String> coordinates) {
-        return Optional.ofNullable(coordinates)
-                .map(this::coordinateBuilder)
-                .orElse(new ArrayList<>());
+        if (coordinates == null || coordinates.isEmpty()) {
+            System.err.println("Invalid coordinates list");
+            return Collections.emptyList();
+        }
+        return coordinateBuilder(coordinates);
     }
 
     private List<CoordinateWeatherRequest> coordinateBuilder(List<String> coordinates) {
-        return coordinates.stream()
-                .map(coordinate -> coordinate.split(":"))
-                .filter(splitCoordinate -> splitCoordinate.length == 2)
-                .map(splitCoordinate ->
-                        CoordinateWeatherRequest.builder()
-                                .lat(Double.parseDouble(splitCoordinate[0]))
-                                .lon(Double.parseDouble(splitCoordinate[1]))
-                                .build()
-                )
-                .collect(Collectors.toList());
+        List<CoordinateWeatherRequest> result = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+
+        coordinates.forEach(coordinate -> {
+            String[] splitCoordinate = coordinate.split(":");
+
+            if (splitCoordinate.length == 2) {
+                try {
+                    double lat = Double.parseDouble(splitCoordinate[0]);
+                    double lon = Double.parseDouble(splitCoordinate[1]);
+                    result.add(buildCoordinateRequest(lat, lon));
+                } catch (NumberFormatException e) {
+                    errors.add("Invalid coordinate format for: " + coordinate);
+                }
+            } else {
+                errors.add("Invalid coordinate format for: " + coordinate);
+            }
+        });
+        if (!errors.isEmpty()) {
+            errors.forEach(System.err::println);
+        }
+        return result;
+    }
+
+    private CoordinateWeatherRequest buildCoordinateRequest(Double lat, Double lon) {
+        return CoordinateWeatherRequest.builder()
+                .lat(lat)
+                .lon(lon)
+                .build();
     }
 }

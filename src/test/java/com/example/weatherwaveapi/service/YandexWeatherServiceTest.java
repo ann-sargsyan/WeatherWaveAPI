@@ -69,11 +69,11 @@ public class YandexWeatherServiceTest {
                 .asInstanceOf(InstanceOfAssertFactories.list(YandexWeatherApiResponse.class))
                 .hasSize(1)
                 .first()
-                .returns(MOSCOW_LON, YandexWeatherApiResponse::longitude)
-                .returns(MOSCOW_LAT, YandexWeatherApiResponse::latitude)
-                .returns(DATE, YandexWeatherApiResponse::date)
-                .returns(MOSCOW_TEMPERATURE, YandexWeatherApiResponse::temperature)
-                .returns(DESCRIPTION, YandexWeatherApiResponse::condition);
+                .returns(MOSCOW_LON, YandexWeatherApiResponse::getLongitude)
+                .returns(MOSCOW_LAT, YandexWeatherApiResponse::getLatitude)
+                .returns(DATE, YandexWeatherApiResponse::getDate)
+                .returns(MOSCOW_TEMPERATURE, YandexWeatherApiResponse::getTemperature)
+                .returns(DESCRIPTION, YandexWeatherApiResponse::getCondition);
 
     }
 
@@ -95,7 +95,7 @@ public class YandexWeatherServiceTest {
                 .asInstanceOf(InstanceOfAssertFactories.list(YandexWeatherApiResponse.class))
                 .hasSize(1)
                 .first()
-                .returns(mockContainerForWeather.errorMessage(), YandexWeatherApiResponse::errorMessage);
+                .returns(mockContainerForWeather.errorMessage(), YandexWeatherApiResponse::getErrorMessage);
 
     }
 
@@ -110,12 +110,12 @@ public class YandexWeatherServiceTest {
         YandexForecastResponse forecastResponse = yandexService.getForecast(new CoordinateWeatherRequest(MOSCOW_LAT, MOSCOW_LON));
 
         assertAll(
-                () -> assertEquals(mockContainerForForecast.info().lat(), forecastResponse.latitude()),
-                () -> assertEquals(mockContainerForForecast.info().lon(), forecastResponse.longitude()),
-                () -> assertEquals(mockContainerForForecast.forecast().date(), forecastResponse.date()),
-                () -> assertEquals(mockContainerForForecast.forecast().week(), forecastResponse.week()),
-                () -> assertEquals(mockContainerForForecast.forecast().parts().get(0).condition(), forecastResponse.forecast().get(0).condition()),
-                () -> assertEquals(mockContainerForForecast.forecast().parts().get(0).tempAvg(), forecastResponse.forecast().get(0).temperature())
+                () -> assertEquals(mockContainerForForecast.info().lat(), forecastResponse.getLatitude()),
+                () -> assertEquals(mockContainerForForecast.info().lon(), forecastResponse.getLongitude()),
+                () -> assertEquals(mockContainerForForecast.forecast().date(), forecastResponse.getDate()),
+                () -> assertEquals(mockContainerForForecast.forecast().week(), forecastResponse.getWeek()),
+                () -> assertEquals(mockContainerForForecast.forecast().parts().get(0).condition(), forecastResponse.getForecast().get(0).condition()),
+                () -> assertEquals(mockContainerForForecast.forecast().parts().get(0).tempAvg(), forecastResponse.getForecast().get(0).temperature())
         );
     }
 

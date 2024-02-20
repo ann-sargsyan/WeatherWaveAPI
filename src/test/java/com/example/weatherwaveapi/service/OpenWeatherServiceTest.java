@@ -82,10 +82,10 @@ class OpenWeatherServiceTest {
                 .asInstanceOf(InstanceOfAssertFactories.list(WeatherApiResponse.class))
                 .hasSize(1)
                 .first()
-                .returns(YEREVAN_TEMPERATURE, WeatherApiResponse::temperature)
-                .returns(YEREVAN, WeatherApiResponse::city)
-                .returns(COUNTRY_OF_YEREVAN, WeatherApiResponse::country)
-                .returns(YEREVAN_CLOUDS, WeatherApiResponse::weatherDescription);
+                .returns(YEREVAN_TEMPERATURE, WeatherApiResponse::getTemperature)
+                .returns(YEREVAN, WeatherApiResponse::getCity)
+                .returns(COUNTRY_OF_YEREVAN, WeatherApiResponse::getCountry)
+                .returns(YEREVAN_CLOUDS, WeatherApiResponse::getWeatherDescription);
     }
 
     @Test
@@ -113,9 +113,9 @@ class OpenWeatherServiceTest {
         WeatherForecastResponse forecastResponse = openWeatherService.getForecast(LONDON);
 
         assertAll(
-                () -> assertEquals(mockContainerForForecast.forecastContainer(), forecastResponse.forecastData()),
-                () -> assertEquals(mockContainerForForecast.cityDetails().name(), forecastResponse.city()),
-                () -> assertEquals(mockContainerForForecast.cityDetails().country(), forecastResponse.country())
+                () -> assertEquals(mockContainerForForecast.forecastContainer(), forecastResponse.getForecastData()),
+                () -> assertEquals(mockContainerForForecast.cityDetails().name(), forecastResponse.getCity()),
+                () -> assertEquals(mockContainerForForecast.cityDetails().country(), forecastResponse.getCountry())
         );
     }
 }

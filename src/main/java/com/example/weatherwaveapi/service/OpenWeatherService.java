@@ -22,10 +22,10 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.springframework.http.HttpMethod.GET;
 
@@ -45,14 +45,14 @@ public class OpenWeatherService implements WeatherService {
     private final UrlBuilderForWeather urlBuilderForWeather;
 
     public WeatherResponse getWeather(WeatherRequest request) {
-        List<ZipCodeWeatherRequest> zipCodeWeatherRequests = convertZipCodeRequest(request.zipcode());
         List<WeatherApiResponse> weatherResponses = new ArrayList<>();
         if (!CollectionUtils.isEmpty(request.cities())) {
             weatherResponses = request.cities().stream()
                     .map(this::getWeatherBySelectedCity)
                     .map(this::convertContainer)
                     .collect(Collectors.toList());
-        } else if (!CollectionUtils.isEmpty(zipCodeWeatherRequests)) {
+        } else {
+            List<ZipCodeWeatherRequest> zipCodeWeatherRequests = convertZipCodeRequest(request.zipcode());
             weatherResponses = zipCodeWeatherRequests.stream()
                     .map(x -> getWeatherByZipCode(x.zipcode(), x.country()))
                     .map(this::convertContainer)
@@ -119,6 +119,7 @@ public class OpenWeatherService implements WeatherService {
     private WeatherApiResponse convertContainer(WeatherOpenApiContainer container) {
         return Optional.ofNullable(container.errorMessage())
                 .map(error -> WeatherApiResponse.builder()
+                        .success(false)
                         .errorMessage(error)
                         .build())
                 .orElseGet(() ->
@@ -141,19 +142,34 @@ public class OpenWeatherService implements WeatherService {
     }
 
     private List<ZipCodeWeatherRequest> convertZipCodeRequest(List<String> zipCodes) {
-        return Optional.ofNullable(zipCodes)
-                .map(this::zipCodeBuilder)
-                .orElse(new ArrayList<>());
+        if (zipCodes == null || zipCodes.isEmpty() || zipCodes.size() % 2 != 0) {
+            System.err.println("Invalid zip code list");
+            return Collections.emptyList();
+        }
+        return zipCodeBuilder(zipCodes);
     }
 
     private List<ZipCodeWeatherRequest> zipCodeBuilder(List<String> zipCodes) {
-        return IntStream.range(0, zipCodes.size() / 2)
-                .mapToObj(i ->
-                        ZipCodeWeatherRequest.builder()
-                                .zipcode(Integer.valueOf(zipCodes.get(i * 2)))
-                                .country(zipCodes.get(i * 2 + 1))
-                                .build()
-                )
-                .collect(Collectors.toList());
+        List<ZipCodeWeatherRequest> result = new ArrayList<>();
+
+        try {
+            for (int i = 0; i < zipCodes.size() / 2; i++) {
+                int zipCode = Integer.parseInt(zipCodes.get(i * 2));
+                String country = zipCodes.get(i * 2 + 1);
+                result.add(buildZipCodeRequest(zipCode, country));
+            }
+
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid zip code list");
+        }
+        return result;
     }
+
+    private ZipCodeWeatherRequest buildZipCodeRequest(int zipCode, String country) {
+        return ZipCodeWeatherRequest.builder()
+                .zipcode(zipCode)
+                .country(country)
+                .build();
+    }
+
 }

@@ -2,15 +2,21 @@ package com.example.weatherwaveapi.model.response.weatherapi.weather;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Value;
 
 
+@Getter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record WeatherApiResponse(
-        String errorMessage,
-        String city,
-        String country,
-        Double temperature,
-        String weatherDescription
-) {
+@Value
+public class WeatherApiResponse {
+    @Builder.Default
+    Boolean success = true;
+    String errorMessage;
+    String city;
+    String country;
+    Double temperature;
+    String weatherDescription;
+
 }

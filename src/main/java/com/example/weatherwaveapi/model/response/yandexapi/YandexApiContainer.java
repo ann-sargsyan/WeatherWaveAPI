@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @Builder
 public record YandexApiContainer(
+        Boolean success,
         String errorMessage,
         @JsonProperty("now")
         Long serverTimeUnix,
@@ -25,6 +26,7 @@ public record YandexApiContainer(
     public YandexWeatherApiResponse convertContainerForWeather(){
         return Optional.ofNullable(errorMessage())
                 .map(error -> YandexWeatherApiResponse.builder()
+                        .success(false)
                         .errorMessage(error)
                         .build())
                 .orElseGet(() ->
@@ -40,6 +42,7 @@ public record YandexApiContainer(
     public YandexForecastResponse convertContainerForForecast(){
         return Optional.ofNullable(errorMessage())
                 .map(error -> YandexForecastResponse.builder()
+                        .success(false)
                         .errorMessage(error)
                         .build())
                 .orElseGet(() ->
