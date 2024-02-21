@@ -16,23 +16,27 @@ locations and obtaining forecast data based on either city or coordinates.
 To get started with WeatherWaveAPI, follow these steps:
 1. Clone the repository to your local machine.
 
-
+ ```bash
     git clone https://github.com/ann-sargsyan/WeatherWaveAPI.git
+```
 
 2. Navigate to the project directory.
 
-
+ ```bash
     cd WeatherWaveAPI
+```
 
 3. Build the project using Maven.
 
-
-    mvn clean install
+ ```bash
+mvn clean install
+ ```
 
 4. Set an active profile and run the application
 
-
-    java -jar -Dspring.profiles.active=development target/WeatherWaveAPI_-0.0.1-SNAPSHOT.jar
+ ```bash
+java -jar -Dspring.profiles.active=development target/WeatherWaveAPI_-0.0.1-SNAPSHOT.jar
+```
 
 ## Usage
 Once the application is up and running, you can interact with the API using the provided endpoints.
@@ -52,7 +56,7 @@ Detailed information about each endpoint and expected responses are documented i
 
 ### Get Weather
 
-```json lines
+```bash lines
 GET /weather/params
 ```
 ### Summary
