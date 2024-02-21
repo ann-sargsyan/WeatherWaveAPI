@@ -39,6 +39,7 @@ public class OpenWeatherService implements WeatherService {
     private static final String STRING_MESSAGE_FORMAT = "Search string: %s, error: %s";
     private static final String EMPTY_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code cannot be null";
     private static final String INVALID_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code must be 5 digits long";
+    private static final String INVALID_ZIP_CODE_FORMAT_MESSAGE = "Invalid zip code format";
 
     private final RestTemplate restTemplate;
 
@@ -142,8 +143,8 @@ public class OpenWeatherService implements WeatherService {
     }
 
     private List<ZipCodeWeatherRequest> convertZipCodeRequest(List<String> zipCodes) {
-        if (zipCodes == null || zipCodes.isEmpty() || zipCodes.size() % 2 != 0) {
-            System.err.println("Invalid zip code list");
+        if (CollectionUtils.isEmpty(zipCodes) || zipCodes.size() % 2 != 0) {
+            log.info(INVALID_ZIP_CODE_FORMAT_MESSAGE);
             return Collections.emptyList();
         }
         return zipCodeBuilder(zipCodes);
@@ -160,7 +161,7 @@ public class OpenWeatherService implements WeatherService {
             }
 
         } catch (NumberFormatException e) {
-            System.err.println("Invalid zip code list");
+            log.error(INVALID_ZIP_CODE_FORMAT_MESSAGE);
         }
         return result;
     }

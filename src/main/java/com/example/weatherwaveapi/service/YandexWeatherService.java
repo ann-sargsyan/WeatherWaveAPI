@@ -16,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -34,6 +35,7 @@ public class YandexWeatherService implements WeatherService {
     private static final String STRING_MESSAGE_FORMAT = "Invalid coordinates: %s. %s";
     private static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
     private static final String FORECAST_ERROR_MESSAGE = "Failed to retrieve forecast data";
+    private static final String INVALID_COORDINATE_FORMAT = "Invalid coordinate format for: {}";
 
     private final RestTemplate restTemplate;
     private final GeneralSettings settings;
@@ -84,8 +86,8 @@ public class YandexWeatherService implements WeatherService {
     }
 
     private List<CoordinateWeatherRequest> convertCoordinatesRequest(List<String> coordinates) {
-        if (coordinates == null || coordinates.isEmpty()) {
-            System.err.println("Invalid coordinates list");
+        if (CollectionUtils.isEmpty(coordinates) ) {
+            log.info("Invalid coordinates list");
             return Collections.emptyList();
         }
         return coordinateBuilder(coordinates);
@@ -93,7 +95,6 @@ public class YandexWeatherService implements WeatherService {
 
     private List<CoordinateWeatherRequest> coordinateBuilder(List<String> coordinates) {
         List<CoordinateWeatherRequest> result = new ArrayList<>();
-        List<String> errors = new ArrayList<>();
 
         coordinates.forEach(coordinate -> {
             String[] splitCoordinate = coordinate.split(":");
@@ -104,15 +105,12 @@ public class YandexWeatherService implements WeatherService {
                     double lon = Double.parseDouble(splitCoordinate[1]);
                     result.add(buildCoordinateRequest(lat, lon));
                 } catch (NumberFormatException e) {
-                    errors.add("Invalid coordinate format for: " + coordinate);
+                     log.error(INVALID_COORDINATE_FORMAT, coordinate);
                 }
             } else {
-                errors.add("Invalid coordinate format for: " + coordinate);
+                log.error(INVALID_COORDINATE_FORMAT, coordinate);
             }
         });
-        if (!errors.isEmpty()) {
-            errors.forEach(System.err::println);
-        }
         return result;
     }
 
