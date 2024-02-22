@@ -7,7 +7,6 @@ import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherFore
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.OpenWeatherResponse;
 import com.example.weatherwaveapi.model.response.WeatherResponse;
-import com.example.weatherwaveapi.util.exception.InvalidZipCodeException;
 import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -143,8 +142,7 @@ public class OpenWeatherService implements WeatherService {
     }
 
     private List<ZipCodeWeatherRequest> convertZipCodeRequest(List<String> zipCodes) {
-        System.out.println(zipCodes.size());
-        if (CollectionUtils.isEmpty(zipCodes) || zipCodes.size() > 2) {
+        if (CollectionUtils.isEmpty(zipCodes)) {
             log.info(INVALID_ZIP_CODE_FORMAT_MESSAGE);
             return Collections.emptyList();
         }
@@ -152,12 +150,13 @@ public class OpenWeatherService implements WeatherService {
     }
 
     private List<ZipCodeWeatherRequest> zipCodeBuilder(List<String> zipCodes) {
-        System.out.println(zipCodes.size());
         List<ZipCodeWeatherRequest> result = new ArrayList<>();
         try {
-            int zipCode = Integer.parseInt(zipCodes.get(0));
-            String country = zipCodes.get(1);
-            result.add(buildZipCodeRequest(zipCode, country));
+            for (int i = 0; i < zipCodes.size(); i += 2) {
+                int zipCode = Integer.parseInt(zipCodes.get(i % zipCodes.size()));
+                String country = zipCodes.get((i + 1) % zipCodes.size());
+                result.add(buildZipCodeRequest(zipCode, country));
+            }
         } catch (NumberFormatException e) {
             log.error(INVALID_ZIP_CODE_FORMAT_MESSAGE);
         }
