@@ -135,15 +135,16 @@ public class OpenWeatherService implements WeatherService {
 
     private void validateZipCode(Integer zipcode) {
         if (zipcode == null) {
-            throw new InvalidZipCodeException(EMPTY_ZIPCODE_EXCEPTION_MESSAGE);
+            log.error(EMPTY_ZIPCODE_EXCEPTION_MESSAGE);
         }
         if (String.valueOf(zipcode).length() != 5) {
-            throw new InvalidZipCodeException(INVALID_ZIPCODE_EXCEPTION_MESSAGE);
+            log.error(INVALID_ZIPCODE_EXCEPTION_MESSAGE);
         }
     }
 
     private List<ZipCodeWeatherRequest> convertZipCodeRequest(List<String> zipCodes) {
-        if (CollectionUtils.isEmpty(zipCodes) || zipCodes.size() % 2 != 0) {
+        System.out.println(zipCodes.size());
+        if (CollectionUtils.isEmpty(zipCodes) || zipCodes.size() > 2) {
             log.info(INVALID_ZIP_CODE_FORMAT_MESSAGE);
             return Collections.emptyList();
         }
@@ -151,15 +152,12 @@ public class OpenWeatherService implements WeatherService {
     }
 
     private List<ZipCodeWeatherRequest> zipCodeBuilder(List<String> zipCodes) {
+        System.out.println(zipCodes.size());
         List<ZipCodeWeatherRequest> result = new ArrayList<>();
-
         try {
-            for (int i = 0; i < zipCodes.size() / 2; i++) {
-                int zipCode = Integer.parseInt(zipCodes.get(i * 2));
-                String country = zipCodes.get(i * 2 + 1);
-                result.add(buildZipCodeRequest(zipCode, country));
-            }
-
+            int zipCode = Integer.parseInt(zipCodes.get(0));
+            String country = zipCodes.get(1);
+            result.add(buildZipCodeRequest(zipCode, country));
         } catch (NumberFormatException e) {
             log.error(INVALID_ZIP_CODE_FORMAT_MESSAGE);
         }

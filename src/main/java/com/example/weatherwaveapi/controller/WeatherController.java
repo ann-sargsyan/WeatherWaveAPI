@@ -3,7 +3,6 @@ package com.example.weatherwaveapi.controller;
 import com.example.weatherwaveapi.model.request.*;
 import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.service.WeatherRouterService;
-import com.example.weatherwaveapi.service.WeatherService;
 import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/weather")
+@RequestMapping("/")
 @Slf4j
 public class WeatherController {
     private static final String REQUEST_MESSAGE = "Request contain serviceApiEnumValue: {}";
@@ -25,7 +24,7 @@ public class WeatherController {
 
     private final WeatherRouterService weatherRouterService;
 
-    @GetMapping(value = "/params", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "weather", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WeatherResponse> getWeatherData(@RequestParam(value = "cities", required = false) List<String> cities,
                                                           @RequestParam(value = "zipCodes", required = false) List<String> zipCodes,
                                                           @RequestParam(value = "coordinates", required = false) List<String> coordinates,
@@ -34,8 +33,7 @@ public class WeatherController {
 
         WeatherRequest weatherRequest = WeatherRequest.builder().cities(cities).zipcode(zipCodes).coordinates(coordinates).service(inputOfServiceApi).build();
         log.info(REQUEST_MESSAGE, weatherRequest);
-        WeatherService weatherService = weatherRouterService.getWeatherService(inputOfServiceApi);
-        WeatherResponse weatherResponse = weatherService.getWeather(weatherRequest);
+        WeatherResponse weatherResponse = weatherRouterService.getWeatherService(inputOfServiceApi).getWeather(weatherRequest);
 
         return ResponseEntity.ok(weatherResponse);
     }
