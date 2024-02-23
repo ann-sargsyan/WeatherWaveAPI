@@ -2,12 +2,11 @@ package com.example.weatherwaveapi.service;
 
 import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.config.OpenWeatherApi;
-import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
-import com.example.weatherwaveapi.model.request.ZipCodeWeatherRequest;
+import com.example.weatherwaveapi.model.request.WeatherRequest;
+import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
 import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -49,14 +48,11 @@ class OpenWeatherServiceTest {
 
     private static Stream<Arguments> parameters() {
         return Stream.of(
-                Arguments.of(OpenWeatherRequest.builder()
+                Arguments.of(WeatherRequest.builder()
                         .cities(List.of(LONDON))
                         .build()),
-                Arguments.of(OpenWeatherRequest.builder()
-                        .zipcode(List.of(ZipCodeWeatherRequest.builder()
-                                .zipcode(ZIPCODE)
-                                .country(COUNTRY_USA)
-                                .build()))
+                Arguments.of(WeatherRequest.builder()
+                        .zipcode(List.of(ZIPCODE, COUNTRY_USA))
                         .build())
         );
     }
@@ -70,36 +66,37 @@ class OpenWeatherServiceTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    void testGetWeatherByCities(OpenWeatherRequest weatherRequest) {
+    void testGetWeatherByCities(WeatherRequest weatherRequest) {
         WeatherOpenApiContainer weatherOpenApiContainer = getContainerForOpenWeather();
 
         when(generalSettings.getOpenWeatherApi()).thenReturn(openWeatherApi);
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(weatherOpenApiContainer));
 
+
         WeatherResponse actualResponse = openWeatherService.getWeather(weatherRequest);
 
 
-        assertThat(actualResponse.responses())
+        assertThat(actualResponse.openWeatherResponse().responses())
                 .isNotNull()
                 .asInstanceOf(InstanceOfAssertFactories.list(WeatherApiResponse.class))
                 .hasSize(1)
                 .first()
-                .returns(YEREVAN_TEMPERATURE, WeatherApiResponse::temperature)
-                .returns(YEREVAN, WeatherApiResponse::city)
-                .returns(COUNTRY_OF_YEREVAN, WeatherApiResponse::country)
-                .returns(YEREVAN_CLOUDS, WeatherApiResponse::weatherDescription);
+                .returns(YEREVAN_TEMPERATURE, WeatherApiResponse::getTemperature)
+                .returns(YEREVAN, WeatherApiResponse::getCity)
+                .returns(COUNTRY_OF_YEREVAN, WeatherApiResponse::getCountry)
+                .returns(YEREVAN_CLOUDS, WeatherApiResponse::getWeatherDescription);
     }
 
     @Test
     void testGetWeather_Failure() {
         OpenWeatherService mockedOpenWeatherService = Mockito.mock(OpenWeatherService.class);
         List<String> cities = Arrays.asList(LONDON, YEREVAN);
-        OpenWeatherRequest request = OpenWeatherRequest.builder()
+        WeatherRequest request = WeatherRequest.builder()
                 .cities(cities)
                 .build();
 
-        when(mockedOpenWeatherService.getWeather(any(OpenWeatherRequest.class))).thenThrow(new RuntimeException("Test exception"));
+        when(mockedOpenWeatherService.getWeather(any(WeatherRequest.class))).thenThrow(new RuntimeException("Test exception"));
 
         assertThrows(RuntimeException.class, () -> mockedOpenWeatherService.getWeather(request));
     }
@@ -116,9 +113,9 @@ class OpenWeatherServiceTest {
         WeatherForecastResponse forecastResponse = openWeatherService.getForecast(LONDON);
 
         assertAll(
-                () -> assertEquals(mockContainerForForecast.forecastContainer(), forecastResponse.forecastData()),
-                () -> assertEquals(mockContainerForForecast.cityDetails().name(), forecastResponse.city()),
-                () -> assertEquals(mockContainerForForecast.cityDetails().country(), forecastResponse.country())
+                () -> assertEquals(mockContainerForForecast.forecastContainer(), forecastResponse.getForecastData()),
+                () -> assertEquals(mockContainerForForecast.cityDetails().name(), forecastResponse.getCity()),
+                () -> assertEquals(mockContainerForForecast.cityDetails().country(), forecastResponse.getCountry())
         );
     }
 }

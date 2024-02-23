@@ -1,11 +1,12 @@
 package com.example.weatherwaveapi.service;
 
-import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
+import com.example.weatherwaveapi.model.request.WeatherRequest;
+import com.example.weatherwaveapi.model.request.ZipCodeWeatherRequest;
 import com.example.weatherwaveapi.model.response.weatherapi.WeatherOpenApiContainer;
 import com.example.weatherwaveapi.model.response.weatherapi.forecast.WeatherForecastResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
-import com.example.weatherwaveapi.util.exception.InvalidZipCodeException;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.OpenWeatherResponse;
+import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.util.urlbuilder.UrlBuilderForWeather;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,36 +31,37 @@ import static org.springframework.http.HttpMethod.GET;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class OpenWeatherService {
+public class OpenWeatherService implements WeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
     private static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
     private static final String FORECAST_ERROR_MESSAGE = "Failed to retrieve forecast data";
     private static final String STRING_MESSAGE_FORMAT = "Search string: %s, error: %s";
     private static final String EMPTY_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code cannot be null";
     private static final String INVALID_ZIPCODE_EXCEPTION_MESSAGE = "ZIP code must be 5 digits long";
-
+    private static final String INVALID_ZIP_CODE_FORMAT_MESSAGE = "Invalid zip code format";
 
     private final RestTemplate restTemplate;
+
     private final UrlBuilderForWeather urlBuilderForWeather;
 
-    public WeatherResponse getWeather(OpenWeatherRequest request) {
+    public WeatherResponse getWeather(WeatherRequest request) {
         List<WeatherApiResponse> weatherResponses = new ArrayList<>();
-
         if (!CollectionUtils.isEmpty(request.cities())) {
             weatherResponses = request.cities().stream()
                     .map(this::getWeatherBySelectedCity)
                     .map(this::convertContainer)
                     .collect(Collectors.toList());
-        } else if (!CollectionUtils.isEmpty(request.zipcode())) {
-            weatherResponses = request.zipcode().stream()
+        } else {
+            List<ZipCodeWeatherRequest> zipCodeWeatherRequests = convertZipCodeRequest(request.zipcode());
+            weatherResponses = zipCodeWeatherRequests.stream()
                     .map(x -> getWeatherByZipCode(x.zipcode(), x.country()))
                     .map(this::convertContainer)
                     .collect(Collectors.toList());
         }
-
-        return WeatherResponse.builder()
+        OpenWeatherResponse openWeatherResponse = OpenWeatherResponse.builder()
                 .responses(weatherResponses)
                 .build();
+        return WeatherResponse.builder().openWeatherResponse(openWeatherResponse).build();
     }
 
     public WeatherForecastResponse getForecast(String city) {
@@ -131,10 +134,40 @@ public class OpenWeatherService {
 
     private void validateZipCode(Integer zipcode) {
         if (zipcode == null) {
-            throw new InvalidZipCodeException(EMPTY_ZIPCODE_EXCEPTION_MESSAGE);
+            log.error(EMPTY_ZIPCODE_EXCEPTION_MESSAGE);
         }
         if (String.valueOf(zipcode).length() != 5) {
-            throw new InvalidZipCodeException(INVALID_ZIPCODE_EXCEPTION_MESSAGE);
+            log.error(INVALID_ZIPCODE_EXCEPTION_MESSAGE);
         }
     }
+
+    private List<ZipCodeWeatherRequest> convertZipCodeRequest(List<String> zipCodes) {
+        if (CollectionUtils.isEmpty(zipCodes)) {
+            log.info(INVALID_ZIP_CODE_FORMAT_MESSAGE);
+            return Collections.emptyList();
+        }
+        return zipCodeBuilder(zipCodes);
+    }
+
+    private List<ZipCodeWeatherRequest> zipCodeBuilder(List<String> zipCodes) {
+        List<ZipCodeWeatherRequest> result = new ArrayList<>();
+        try {
+            for (int i = 0; i < zipCodes.size(); i += 2) {
+                int zipCode = Integer.parseInt(zipCodes.get(i % zipCodes.size()));
+                String country = zipCodes.get((i + 1) % zipCodes.size());
+                result.add(buildZipCodeRequest(zipCode, country));
+            }
+        } catch (NumberFormatException e) {
+            log.error(INVALID_ZIP_CODE_FORMAT_MESSAGE);
+        }
+        return result;
+    }
+
+    private ZipCodeWeatherRequest buildZipCodeRequest(int zipCode, String country) {
+        return ZipCodeWeatherRequest.builder()
+                .zipcode(zipCode)
+                .country(country)
+                .build();
+    }
+
 }

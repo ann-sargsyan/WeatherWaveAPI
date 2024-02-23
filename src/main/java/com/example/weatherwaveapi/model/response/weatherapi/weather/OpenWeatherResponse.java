@@ -1,4 +1,4 @@
-package com.example.weatherwaveapi.model.response.yandexapi.weather;
+package com.example.weatherwaveapi.model.response.weatherapi.weather;
 
 import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,8 +8,8 @@ import java.util.List;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record YandexWeatherResponse(
-        List<YandexWeatherApiResponse> responses,
+public record OpenWeatherResponse(
+        List<WeatherApiResponse> responses,
         ServiceApiEnum serviceApiEnum
 ) {
 }

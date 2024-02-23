@@ -2,7 +2,8 @@ package com.example.weatherwaveapi.service;
 
 import com.example.weatherwaveapi.config.GeneralSettings;
 import com.example.weatherwaveapi.model.request.CoordinateWeatherRequest;
-import com.example.weatherwaveapi.model.request.YandexWeatherRequest;
+import com.example.weatherwaveapi.model.request.WeatherRequest;
+import com.example.weatherwaveapi.model.response.WeatherResponse;
 import com.example.weatherwaveapi.model.response.yandexapi.YandexApiContainer;
 import com.example.weatherwaveapi.model.response.yandexapi.forecast.YandexForecastResponse;
 import com.example.weatherwaveapi.model.response.yandexapi.weather.YandexWeatherApiResponse;
@@ -15,10 +16,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.http.HttpMethod.GET;
@@ -26,27 +30,29 @@ import static org.springframework.http.HttpMethod.GET;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class YandexWeatherService {
+public class YandexWeatherService implements WeatherService {
     private static final String EXCEPTION_MESSAGE = "HTTP error occurred while processing request. Exception message: {}";
     private static final String STRING_MESSAGE_FORMAT = "Invalid coordinates: %s. %s";
     private static final String WEATHER_ERROR_MESSAGE = "Failed to retrieve weather data";
     private static final String FORECAST_ERROR_MESSAGE = "Failed to retrieve forecast data";
+    private static final String INVALID_COORDINATE_FORMAT = "Invalid coordinate format for: {}";
 
     private final RestTemplate restTemplate;
     private final GeneralSettings settings;
     private final UrlBuilderForWeather urlBuilderForWeather;
 
 
-    public YandexWeatherResponse getWeather(YandexWeatherRequest request) {
-        List<YandexWeatherApiResponse> weatherResponses = request.coordinates()
+    public WeatherResponse getWeather(WeatherRequest request) {
+        List<YandexWeatherApiResponse> weatherResponses = convertCoordinatesRequest(request.coordinates())
                 .stream()
                 .map(c -> getYandexApiContainer(urlBuilderForWeather.buildYandexWeatherUrlForCoord(c.lat(), c.lon()), String.format(STRING_MESSAGE_FORMAT, c, WEATHER_ERROR_MESSAGE)))
                 .map(YandexApiContainer::convertContainerForWeather)
                 .toList();
 
-        return YandexWeatherResponse.builder()
+        YandexWeatherResponse yandexWeatherResponse = YandexWeatherResponse.builder()
                 .responses(weatherResponses)
                 .build();
+        return WeatherResponse.builder().yandexWeatherResponse(yandexWeatherResponse).build();
 
     }
 
@@ -73,9 +79,45 @@ public class YandexWeatherService {
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error(EXCEPTION_MESSAGE, e.getMessage());
             return YandexApiContainer.builder()
+                    .success(false)
                     .errorMessage(format)
                     .build();
         }
     }
 
+    private List<CoordinateWeatherRequest> convertCoordinatesRequest(List<String> coordinates) {
+        if (CollectionUtils.isEmpty(coordinates) ) {
+            log.info("Invalid coordinates list");
+            return Collections.emptyList();
+        }
+        return coordinateBuilder(coordinates);
+    }
+
+    private List<CoordinateWeatherRequest> coordinateBuilder(List<String> coordinates) {
+        List<CoordinateWeatherRequest> result = new ArrayList<>();
+
+        coordinates.forEach(coordinate -> {
+            String[] splitCoordinate = coordinate.split(":");
+
+            if (splitCoordinate.length == 2) {
+                try {
+                    double lat = Double.parseDouble(splitCoordinate[0]);
+                    double lon = Double.parseDouble(splitCoordinate[1]);
+                    result.add(buildCoordinateRequest(lat, lon));
+                } catch (NumberFormatException e) {
+                     log.error(INVALID_COORDINATE_FORMAT, coordinate);
+                }
+            } else {
+                log.error(INVALID_COORDINATE_FORMAT, coordinate);
+            }
+        });
+        return result;
+    }
+
+    private CoordinateWeatherRequest buildCoordinateRequest(Double lat, Double lon) {
+        return CoordinateWeatherRequest.builder()
+                .lat(lat)
+                .lon(lon)
+                .build();
+    }
 }

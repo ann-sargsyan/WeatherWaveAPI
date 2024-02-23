@@ -26,10 +26,14 @@ public class WeatherApiUtil {
     public static final String COUNTRY_OF_YEREVAN = "AM";
     public static final Double YEREVAN_TEMPERATURE = 271.24;
     public static final String YEREVAN_CLOUDS = "scattered clouds";
-    public static final Integer ZIPCODE = 94040;
+    public static final String ZIPCODE = "94040";
+    public static final String CITY_IN_US = "Mountain View";
+    public static final Double US_TEMPERATURE = 281.69;
     public static final String COUNTRY_USA = "US";
+    public static final String US_DESCRIPTION = "clear sky";
     public static final String DATE = "2024-02-12 06:00:00";
     public static final String DESCRIPTION = "light intensity drizzle";
+    public static final String MOSCOW_LAT_LON = "55.75396:37.620393";
     public static final Double MOSCOW_LAT = 55.75396;
     public static final Double MOSCOW_LON = 37.620393;
     public static final Integer WEEK_NUMBER = 7;

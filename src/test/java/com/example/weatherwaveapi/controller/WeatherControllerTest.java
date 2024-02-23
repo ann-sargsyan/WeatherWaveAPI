@@ -1,28 +1,29 @@
 package com.example.weatherwaveapi.controller;
 
-import com.example.util.WeatherApiUtil;
-import com.example.weatherwaveapi.serviceapienum.ServiceApiEnum;
-import org.junit.jupiter.api.Test;
-import com.example.weatherwaveapi.model.request.OpenWeatherRequest;
+
+import com.example.weatherwaveapi.model.request.WeatherRequest;
+import com.example.weatherwaveapi.model.response.WeatherResponse;
+import com.example.weatherwaveapi.model.response.weatherapi.weather.OpenWeatherResponse;
 import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherApiResponse;
-import com.example.weatherwaveapi.model.response.weatherapi.weather.WeatherResponse;
+import com.example.weatherwaveapi.model.response.yandexapi.weather.YandexWeatherApiResponse;
+import com.example.weatherwaveapi.model.response.yandexapi.weather.YandexWeatherResponse;
 import com.example.weatherwaveapi.service.OpenWeatherService;
+import com.example.weatherwaveapi.service.WeatherRouterService;
+import com.example.weatherwaveapi.service.YandexWeatherService;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static com.example.util.WeatherApiUtil.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.example.weatherwaveapi.serviceapienum.ServiceApiEnum.OPEN_WEATHER_MAP;
+import static com.example.weatherwaveapi.serviceapienum.ServiceApiEnum.YANDEX;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -32,8 +33,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(WeatherController.class)
 class WeatherControllerTest {
-    private static final String URL_FOR_CITY_LONDON = "http://localhost:8080/weather/city?city=london";
-    private static final String URL_FOR_CITIES = "http://localhost:8080/weather/cities?cities=yerevan&cities=london";
+    private static final String URL_FOR_CITY_LONDON = "http://localhost:8080/weather/params?cities=london";
+    private static final String URL_FOR_CITY_MOSCOW = "http://localhost:8080/weather/params?coordinates=55.75396,37.620393&serviceApi=YANDEX";
+    private static final String URL_FOR_US = "http://localhost:8080/weather/params?serviceApi=OPEN_WEATHER_MAP&zipCodes=94040,US";
+    private static final String URL_FOR_CITIES = "http://localhost:8080/weather/params?cities=london&cities=yerevan";
 
     @Autowired
     private MockMvc mockMvc;
@@ -41,20 +44,28 @@ class WeatherControllerTest {
     @MockBean
     private OpenWeatherService openWeatherService;
 
+    @MockBean
+    private YandexWeatherService yandexWeatherService;
+
+    @MockBean
+    private WeatherRouterService weatherRouterService;
+
     @ParameterizedTest
     @MethodSource("parameters")
-    void testGetWeatherInSelectedCity_Success(String url, WeatherApiResponse weatherApiResponse) throws Exception {
-        WeatherResponse mockedResponse = WeatherResponse.builder().responses(List.of(weatherApiResponse)).build();
+    void testGetWeatherInSelectedCity_OpenWeather(String url, WeatherApiResponse weatherApiResponse) throws Exception {
+        OpenWeatherResponse openWeatherResponse = OpenWeatherResponse.builder().responses(List.of(weatherApiResponse)).build();
+        WeatherResponse mockedResponse = WeatherResponse.builder().openWeatherResponse(openWeatherResponse).build();
 
-        when(openWeatherService.getWeather(any(OpenWeatherRequest.class))).thenReturn(mockedResponse);
+        when(weatherRouterService.getWeatherService(OPEN_WEATHER_MAP)).thenReturn(openWeatherService);
+        when(openWeatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpectAll(
-                        jsonPath("$.responses[0].city").value(weatherApiResponse.city()),
-                        jsonPath("$.responses[0].country").value(weatherApiResponse.country()),
-                        jsonPath("$.responses[0].temperature").value(weatherApiResponse.temperature()),
-                        jsonPath("$.responses[0].weatherDescription").value(weatherApiResponse.weatherDescription()));
+                        jsonPath("$.openWeatherResponse.responses[0].city").value(weatherApiResponse.getCity()),
+                        jsonPath("$.openWeatherResponse.responses[0].country").value(weatherApiResponse.getCountry()),
+                        jsonPath("$.openWeatherResponse.responses[0].temperature").value(weatherApiResponse.getTemperature()),
+                        jsonPath("$.openWeatherResponse.responses[0].weatherDescription").value(weatherApiResponse.getWeatherDescription()));
     }
 
     private static Stream<Arguments> parameters() {
@@ -70,22 +81,24 @@ class WeatherControllerTest {
 
     @ParameterizedTest
     @MethodSource("cities_parameters")
-    void testGetWeatherInSelectedCities_Success(String url, WeatherApiResponse weatherApiResponseLondon, WeatherApiResponse weatherApiResponseYerevan) throws Exception {
-        WeatherResponse mockedResponse = WeatherResponse.builder().responses(List.of(weatherApiResponseLondon, weatherApiResponseYerevan)).build();
+    void testGetWeatherInSelectedCities_OpenWeather(String url, WeatherApiResponse weatherApiResponseLondon, WeatherApiResponse weatherApiResponseYerevan) throws Exception {
+        OpenWeatherResponse openWeatherResponse = OpenWeatherResponse.builder().responses(List.of(weatherApiResponseLondon, weatherApiResponseYerevan)).build();
+        WeatherResponse mockedResponse = WeatherResponse.builder().openWeatherResponse(openWeatherResponse).build();
 
-        when(openWeatherService.getWeather(any(OpenWeatherRequest.class))).thenReturn(mockedResponse);
+        when(weatherRouterService.getWeatherService(OPEN_WEATHER_MAP)).thenReturn(openWeatherService);
+        when(openWeatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpectAll(
-                        jsonPath("$.responses[0].city").value(weatherApiResponseLondon.city()),
-                        jsonPath("$.responses[0].country").value(weatherApiResponseLondon.country()),
-                        jsonPath("$.responses[0].temperature").value(weatherApiResponseLondon.temperature()),
-                        jsonPath("$.responses[0].weatherDescription").value(weatherApiResponseLondon.weatherDescription()),
-                        jsonPath("$.responses[1].city").value(weatherApiResponseYerevan.city()),
-                        jsonPath("$.responses[1].country").value(weatherApiResponseYerevan.country()),
-                        jsonPath("$.responses[1].temperature").value(weatherApiResponseYerevan.temperature()),
-                        jsonPath("$.responses[1].weatherDescription").value(weatherApiResponseYerevan.weatherDescription()));
+                        jsonPath("$.openWeatherResponse.responses[0].city").value(weatherApiResponseLondon.getCity()),
+                        jsonPath("$.openWeatherResponse.responses[0].country").value(weatherApiResponseLondon.getCountry()),
+                        jsonPath("$.openWeatherResponse.responses[0].temperature").value(weatherApiResponseLondon.getTemperature()),
+                        jsonPath("$.openWeatherResponse.responses[0].weatherDescription").value(weatherApiResponseLondon.getWeatherDescription()),
+                        jsonPath("$.openWeatherResponse.responses[1].city").value(weatherApiResponseYerevan.getCity()),
+                        jsonPath("$.openWeatherResponse.responses[1].country").value(weatherApiResponseYerevan.getCountry()),
+                        jsonPath("$.openWeatherResponse.responses[1].temperature").value(weatherApiResponseYerevan.getTemperature()),
+                        jsonPath("$.openWeatherResponse.responses[1].weatherDescription").value(weatherApiResponseYerevan.getWeatherDescription()));
     }
 
     private static Stream<Arguments> cities_parameters() {
@@ -104,21 +117,63 @@ class WeatherControllerTest {
         );
     }
 
-    @Test
-    public void testGetWeatherInSelectedCities_ServiceApi() {
-        OpenWeatherService weatherServiceMock = mock(OpenWeatherService.class);
-        WeatherController weatherController = new WeatherController(weatherServiceMock);
+    @ParameterizedTest
+    @MethodSource("parameters_for_zipCode")
+    void testGetWeatherByZipCode_Yandex(String url, WeatherApiResponse weatherApiResponse) throws Exception {
+        OpenWeatherResponse openWeatherResponse = OpenWeatherResponse.builder().responses(List.of(weatherApiResponse)).build();
+        WeatherResponse mockedResponse = WeatherResponse.builder().openWeatherResponse(openWeatherResponse).build();
 
-        List<String> testCities = Arrays.asList(YEREVAN, LONDON);
-        ServiceApiEnum testServiceApi = ServiceApiEnum.OPEN_WEATHER_MAP;
+        when(weatherRouterService.getWeatherService(OPEN_WEATHER_MAP)).thenReturn(openWeatherService);
+        when(openWeatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
 
-        ResponseEntity<WeatherResponse> responseEntity = weatherController.getWeatherInSelectedCities(testCities, testServiceApi);
+        mockMvc.perform(get(url))
+                .andExpect(status().isOk())
+                .andExpectAll(
+                        jsonPath("$.openWeatherResponse.responses[0].city").value(weatherApiResponse.getCity()),
+                        jsonPath("$.openWeatherResponse.responses[0].country").value(weatherApiResponse.getCountry()),
+                        jsonPath("$.openWeatherResponse.responses[0].temperature").value(weatherApiResponse.getTemperature()),
+                        jsonPath("$.openWeatherResponse.responses[0].weatherDescription").value(weatherApiResponse.getWeatherDescription()));
+    }
 
-        verify(weatherServiceMock).getWeather(argThat(weatherRequest ->
-                weatherRequest.cities().equals(testCities) && weatherRequest.service() == testServiceApi));
+    private static Stream<Arguments> parameters_for_zipCode() {
+        return Stream.of(
+                Arguments.of(URL_FOR_US, WeatherApiResponse.builder()
+                        .city(CITY_IN_US)
+                        .country(COUNTRY_USA)
+                        .temperature(US_TEMPERATURE)
+                        .weatherDescription(US_DESCRIPTION)
+                        .build()));
+    }
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    @ParameterizedTest
+    @MethodSource("parameters_for_yandex")
+    void testGetWeatherInSelectedCity_Yandex(String url, YandexWeatherApiResponse yandexWeatherApiResponse) throws Exception {
+        YandexWeatherResponse yandexWeatherResponse = YandexWeatherResponse.builder().responses(List.of(yandexWeatherApiResponse)).build();
+        WeatherResponse mockedResponse = WeatherResponse.builder().yandexWeatherResponse(yandexWeatherResponse).build();
 
+        when(weatherRouterService.getWeatherService(YANDEX)).thenReturn(yandexWeatherService);
+        when(yandexWeatherService.getWeather(any(WeatherRequest.class))).thenReturn(mockedResponse);
+
+        mockMvc.perform(get(url))
+                .andExpect(status().isOk())
+                .andExpectAll(
+                        jsonPath("$.yandexWeatherResponse.responses[0].latitude").value(yandexWeatherApiResponse.getLatitude()),
+                        jsonPath("$.yandexWeatherResponse.responses[0].longitude").value(yandexWeatherApiResponse.getLongitude()),
+                        jsonPath("$.yandexWeatherResponse.responses[0].temperature").value(yandexWeatherApiResponse.getTemperature()),
+                        jsonPath("$.yandexWeatherResponse.responses[0].condition").value(yandexWeatherApiResponse.getCondition()),
+                        jsonPath("$.yandexWeatherResponse.responses[0].date").value(yandexWeatherApiResponse.getDate()));
+    }
+
+    private static Stream<Arguments> parameters_for_yandex() {
+        return Stream.of(
+                Arguments.of(URL_FOR_CITY_MOSCOW, YandexWeatherApiResponse.builder()
+                        .latitude(MOSCOW_LAT)
+                        .longitude(MOSCOW_LON)
+                        .temperature(MOSCOW_TEMPERATURE)
+                        .condition(DESCRIPTION)
+                        .date(DATE)
+                        .build()));
     }
 
 }
+

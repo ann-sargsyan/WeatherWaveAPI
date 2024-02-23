@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @Builder
 public record YandexApiContainer(
+        Boolean success,
         String errorMessage,
         @JsonProperty("now")
         Long serverTimeUnix,
